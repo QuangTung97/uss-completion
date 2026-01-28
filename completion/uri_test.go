@@ -8,32 +8,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUriValue_Complete__Basic(t *testing.T) {
+func TestUriAndFile_Complete__Basic(t *testing.T) {
 	_ = os.Setenv("GO_TEST", "1")
 
 	t.Run("empty", func(t *testing.T) {
-		v := UriValue("")
+		v := UriAndFile("")
 		assert.Equal(t, []flags.Completion{
 			{Item: `"uss://<NS>`},
 		}, v.Complete(""))
 	})
 
 	t.Run("with uss prefix", func(t *testing.T) {
-		v := UriValue("")
+		v := UriAndFile("")
 		assert.Equal(t, []flags.Completion{
 			{Item: DoubleQuote + "uss://<NS>"},
 		}, v.Complete("us"))
 	})
 
 	t.Run("with uss prefix, with open double quote", func(t *testing.T) {
-		v := UriValue("")
+		v := UriAndFile("")
 		assert.Equal(t, []flags.Completion{
 			{Item: `"uss://<NS>`},
 		}, v.Complete(`"uss`))
 	})
 
 	t.Run("with full prefix", func(t *testing.T) {
-		v := UriValue("")
+		v := UriAndFile("")
 		assert.Equal(t, []flags.Completion(nil), v.Complete(DoubleQuote+"uss://"))
 	})
 }
@@ -60,8 +60,8 @@ func newUriValueTest(t *testing.T) *uriValueTest {
 	return v
 }
 
-func (v *uriValueTest) complete(prefix string) []string {
-	value := UriValue("")
+func (v *uriValueTest) completeUriAndFile(prefix string) []string {
+	value := UriAndFile("")
 	items := value.Complete(prefix)
 	result := make([]string, 0, len(items))
 	for _, it := range items {
@@ -70,7 +70,17 @@ func (v *uriValueTest) complete(prefix string) []string {
 	return result
 }
 
-func TestUriValue_Complete__With_Files(t *testing.T) {
+func (v *uriValueTest) completeUri(prefix string) []string {
+	value := Uri("")
+	items := value.Complete(prefix)
+	result := make([]string, 0, len(items))
+	for _, it := range items {
+		result = append(result, it.Item)
+	}
+	return result
+}
+
+func TestUriAndFile_Complete__With_Files(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		v := newUriValueTest(t)
 
@@ -86,7 +96,7 @@ func TestUriValue_Complete__With_Files(t *testing.T) {
 				`"uss://test01{date=20250219,asset_type=at}"/file01`,
 				`"uss://test01{date=20250219,asset_type=at}"/file02`,
 			},
-			v.complete(`"uss://test01{date=20250219,asset_type=at}"`),
+			v.completeUriAndFile(`"uss://test01{date=20250219,asset_type=at}"`),
 		)
 
 		// check input
@@ -108,7 +118,7 @@ func TestUriValue_Complete__With_Files(t *testing.T) {
 				`"uss://test01{date=20250219,asset_type=at}"/file01`,
 				`"uss://test01{date=20250219,asset_type=at}"/file02`,
 			},
-			v.complete(`"uss://test01{date=20250219,asset_type=at}"/file`),
+			v.completeUriAndFile(`"uss://test01{date=20250219,asset_type=at}"/file`),
 		)
 
 		// check input
@@ -130,7 +140,7 @@ func TestUriValue_Complete__With_Files(t *testing.T) {
 				`"uss://test01{date=20250219,asset_type=at}"/file01`,
 				`"uss://test01{date=20250219,asset_type=at}"/file02`,
 			},
-			v.complete(`"uss://test01{date=20250219,asset_type=at}/file`),
+			v.completeUriAndFile(`"uss://test01{date=20250219,asset_type=at}/file`),
 		)
 
 		// check input
@@ -154,7 +164,7 @@ func TestUriValue_Complete__With_Files(t *testing.T) {
 				`"uss://test01{date=20250219,asset_type=at}"/file02`,
 				`"uss://test01{date=20250219,asset_type=at}"/example`,
 			},
-			v.complete(`"uss://test01{date=20250219,asset_type=at}`),
+			v.completeUriAndFile(`"uss://test01{date=20250219,asset_type=at}`),
 		)
 
 		// check input
@@ -166,7 +176,7 @@ func TestUriValue_Complete__With_Files(t *testing.T) {
 		assert.Equal(
 			t,
 			[]string{},
-			v.complete(`"uss://test01{date=20250219,asset_type=at`),
+			v.completeUriAndFile(`"uss://test01{date=20250219,asset_type=at`),
 		)
 	})
 
@@ -175,7 +185,48 @@ func TestUriValue_Complete__With_Files(t *testing.T) {
 		assert.Equal(
 			t,
 			[]string{},
-			v.complete(`"uss://test01date=20250219,asset_type=at}`),
+			v.completeUriAndFile(`"uss://test01date=20250219,asset_type=at}`),
 		)
+	})
+
+	t.Run("without slash", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		v.fileList = []string{
+			"file01",
+			"file02",
+		}
+
+		assert.Equal(
+			t,
+			[]string{},
+			v.completeUriAndFile(`"uss://test01{date=20250219,asset_type=at}file`),
+		)
+
+		// check input
+		assert.Equal(t, "", v.fileMatchInput)
+	})
+}
+
+func TestUri_Complete(t *testing.T) {
+	t.Run("normal", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		// not consider
+		v.fileList = []string{
+			"file01",
+			"file02",
+		}
+
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://test01{date=20250219,asset_type=at}"`,
+			},
+			v.completeUri(`"uss://test01{date=20250219,asset_type=at}"`),
+		)
+
+		// check input
+		assert.Equal(t, "", v.fileMatchInput)
 	})
 }

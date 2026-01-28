@@ -27,7 +27,7 @@ var rootCmd RootCommand
 
 type SubCommand struct {
 	Args struct {
-		URI completion.UriValue `positional-arg-name:"<uri>" description:"uss URI string"`
+		URI completion.UriAndFile `positional-arg-name:"<uri>" description:"uss URI string"`
 	} `positional-args:"yes" required:"yes"`
 }
 

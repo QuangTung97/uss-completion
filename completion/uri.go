@@ -8,9 +8,25 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
-type UriValue string
+type Uri string
 
-var _ flags.Completer = UriValue("")
+var _ flags.Completer = Uri("")
+
+func (Uri) Complete(match string) (output []flags.Completion) {
+	return handleComplete(match, false)
+}
+
+// ------------------------------
+
+type UriAndFile string
+
+var _ flags.Completer = UriAndFile("")
+
+func (UriAndFile) Complete(match string) (output []flags.Completion) {
+	return handleComplete(match, true)
+}
+
+// ======================================================
 
 func listFilesByPattern(match string) []string {
 	nameList, _ := filepath.Glob(match + "*")
@@ -32,28 +48,26 @@ func listFilesByPattern(match string) []string {
 
 var globalListFilesByPatternFunc = listFilesByPattern
 
-func removeQuoted(match string, withClosedQuote *bool) string {
+func removeQuoted(match string) string {
 	if !strings.HasPrefix(match, DoubleQuote) {
 		return match
 	}
 
 	match = strings.TrimPrefix(match, DoubleQuote)
 	closeIndex := strings.Index(match, DoubleQuote)
-	if closeIndex >= 0 {
-		*withClosedQuote = true
-		return match[:closeIndex] + match[closeIndex+1:]
+	if closeIndex < 0 {
+		return match
 	}
-	return match
+	return match[:closeIndex] + match[closeIndex+1:]
 }
 
-func (UriValue) Complete(match string) (output []flags.Completion) {
+func handleComplete(match string, withFile bool) (output []flags.Completion) {
 	WriteToLog("Match: '%s'\n", match)
 	defer func() {
 		WriteToLog("Output: '%+v'\n", output)
 	}()
 
-	var withClosedQuote bool
-	match = removeQuoted(match, &withClosedQuote)
+	match = removeQuoted(match)
 
 	const ussPrefix = "uss://"
 	if match == ussPrefix {
@@ -82,8 +96,14 @@ func (UriValue) Complete(match string) (output []flags.Completion) {
 		return nil
 	}
 
-	remainMatch := match[closeIndex+1:]
 	prefix := DoubleQuote + match[:closeIndex+1] + DoubleQuote
+	if !withFile {
+		return []flags.Completion{
+			{Item: prefix},
+		}
+	}
+
+	remainMatch := match[closeIndex+1:]
 	var result []flags.Completion
 
 	// add no file suffix
