@@ -59,7 +59,7 @@ func main() {
 }
 
 func simpleCompletion() {
-	completion.WriteToLog("%+v\n", os.Args[1])
+	completion.WriteToLog("%+v\n", os.Args[1:])
 }
 
 func normalMain() {

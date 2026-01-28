@@ -1,12 +1,4 @@
-export COMP_WORDBREAKS="><;|&("
-
 _completion_uss() {
-    # Save the old breaks
-    # local old_breaks=$COMP_WORDBREAKS
-
-    # Remove single quote, double quote and colon
-    # COMP_WORDBREAKS="><;|&("
-
     # All arguments except the first one
     args=("${COMP_WORDS[@]:1:$COMP_CWORD}")
 
@@ -15,10 +7,6 @@ _completion_uss() {
 
     # Call completion (note that the first element of COMP_WORDS is the executable itself)
     COMPREPLY=($(GO_FLAGS_COMPLETION=1 ${COMP_WORDS[0]} "${args[@]}"))
-
-    # Restore the global variable immediately
-    # COMP_WORDBREAKS=$old_breaks
-
     return 0
 }
 
