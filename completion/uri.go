@@ -1,9 +1,8 @@
 package completion
 
 import (
-	"bytes"
-	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/jessevdk/go-flags"
@@ -14,13 +13,18 @@ type UriValue string
 var _ flags.Completer = UriValue("")
 
 func listFilesByPattern(match string) []string {
-	empty := flags.Filename("")
+	nameList, _ := filepath.Glob(match + "*")
+	result := make([]string, 0, len(nameList))
 
-	items := empty.Complete(match)
-	result := make([]string, 0, len(items))
+	for _, name := range nameList {
+		statInfo, _ := os.Stat(name)
+		if statInfo != nil {
+			if statInfo.IsDir() {
+				name = name + "/" + NoSpace
+			}
+		}
 
-	for _, it := range items {
-		result = append(result, it.Item)
+		result = append(result, name)
 	}
 
 	return result
@@ -42,7 +46,7 @@ func removeQuoted(match string, withClosedQuote *bool) string {
 	return match
 }
 
-func (v UriValue) Complete(match string) (output []flags.Completion) {
+func (UriValue) Complete(match string) (output []flags.Completion) {
 	WriteToLog("Match: '%s'\n", match)
 	defer func() {
 		WriteToLog("Output: '%+v'\n", output)
@@ -111,35 +115,4 @@ func (v UriValue) Complete(match string) (output []flags.Completion) {
 		})
 	}
 	return result
-}
-
-func WriteToLog(format string, args ...any) {
-	if os.Getenv("GO_TEST") != "" {
-		return
-	}
-
-	file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = fmt.Fprintf(file, format, args...)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := file.Close(); err != nil {
-		panic(err)
-	}
-}
-
-func PrintArray(values []string) string {
-	var buf bytes.Buffer
-	for index, v := range values {
-		if index > 0 {
-			buf.WriteString(" ")
-		}
-		buf.WriteString(fmt.Sprintf("%q", v))
-	}
-	return buf.String()
 }

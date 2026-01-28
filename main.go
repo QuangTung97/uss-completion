@@ -40,7 +40,11 @@ func (cmd *SubCommand) Execute(args []string) error {
 	return nil
 }
 
-type VolumeCmd struct{}
+type VolumeCmd struct {
+	Args struct {
+		File completion.Filename `positional-arg-name:"<file>" description:"file name"`
+	} `positional-args:"yes" required:"yes"`
+}
 
 func printCompletionList(items []flags.Completion) {
 	for _, v := range items {
