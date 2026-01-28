@@ -10,6 +10,6 @@ _completion_uss() {
     return 0
 }
 
-complete -o nospace -o noquote -F _completion_uss uss
+complete -o nospace -F _completion_uss uss
 
 export PATH="$PATH:."

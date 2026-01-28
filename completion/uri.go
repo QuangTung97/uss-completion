@@ -13,18 +13,33 @@ type UriValue string
 
 var _ flags.Completer = UriValue("")
 
-func removeQuoted(match string) (string, bool, string) {
+func listFilesByPattern(match string) []string {
+	empty := flags.Filename("")
+
+	items := empty.Complete(match)
+	result := make([]string, 0, len(items))
+
+	for _, it := range items {
+		result = append(result, it.Item)
+	}
+
+	return result
+}
+
+var globalListFilesByPatternFunc = listFilesByPattern
+
+func removeQuoted(match string, withClosedQuote *bool) string {
 	if !strings.HasPrefix(match, DoubleQuote) {
-		return match, false, match
+		return match
 	}
 
 	match = strings.TrimPrefix(match, DoubleQuote)
-
 	closeIndex := strings.Index(match, DoubleQuote)
 	if closeIndex >= 0 {
-		return match[:closeIndex], true, match[closeIndex+1:]
+		*withClosedQuote = true
+		return match[:closeIndex] + match[closeIndex+1:]
 	}
-	return match, false, match
+	return match
 }
 
 func (v UriValue) Complete(match string) (output []flags.Completion) {
@@ -33,7 +48,8 @@ func (v UriValue) Complete(match string) (output []flags.Completion) {
 		WriteToLog("Output: '%+v'\n", output)
 	}()
 
-	match, fullyQuoted, remainMatch := removeQuoted(match)
+	var withClosedQuote bool
+	match = removeQuoted(match, &withClosedQuote)
 
 	const ussPrefix = "uss://"
 	if match == ussPrefix {
@@ -55,30 +71,46 @@ func (v UriValue) Complete(match string) (output []flags.Completion) {
 	openIndex := strings.Index(match, "{")
 	closeIndex := strings.Index(match, "}")
 
-	if openIndex > 0 && closeIndex > 0 {
-		if fullyQuoted {
-			prefix := DoubleQuote + match + DoubleQuote
-
-			// TODO handle correctly
-			var result []flags.Completion
-			result = append(result, flags.Completion{
-				Item: prefix,
-			})
-
-			empty := flags.Filename("")
-			for _, fileMatch := range empty.Complete(remainMatch) {
-				result = append(result, flags.Completion{
-					Item: prefix + "/" + fileMatch.Item,
-				})
-			}
-			return result
-		}
-		return []flags.Completion{
-			{Item: DoubleQuote + match + DoubleQuote + NoSpace},
-		}
+	if openIndex <= 0 {
+		return nil
+	}
+	if closeIndex <= 0 {
+		return nil
 	}
 
-	return nil
+	remainMatch := match[closeIndex+1:]
+	prefix := DoubleQuote + match[:closeIndex+1] + DoubleQuote
+	var result []flags.Completion
+
+	// add no file suffix
+	if len(remainMatch) == 0 {
+		result = append(result, flags.Completion{
+			Item: prefix,
+		})
+		for _, fileMatch := range globalListFilesByPatternFunc(remainMatch) {
+			result = append(result, flags.Completion{
+				Item: prefix + "/" + fileMatch,
+			})
+		}
+		return result
+	}
+
+	if !strings.HasPrefix(remainMatch, "/") {
+		return nil
+	}
+
+	// remove prefix
+	remainMatch = remainMatch[1:]
+
+	for _, fileMatch := range globalListFilesByPatternFunc(remainMatch) {
+		if !strings.HasPrefix(fileMatch, remainMatch) {
+			continue
+		}
+		result = append(result, flags.Completion{
+			Item: prefix + "/" + fileMatch,
+		})
+	}
+	return result
 }
 
 func WriteToLog(format string, args ...any) {
