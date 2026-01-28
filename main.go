@@ -51,15 +51,16 @@ func printCompletionList(items []flags.Completion) {
 			fmt.Println(v.Item + " ") // add space to the end
 		}
 	}
+	os.Exit(0)
 }
 
 func main() {
-	// normalMain()
-	simpleCompletion()
+	normalMain()
+	// simpleCompletion()
 }
 
 func simpleCompletion() {
-	completion.WriteToLog("%+v\n", os.Args[1:])
+	completion.WriteToLog("%s\n", completion.PrintArray(os.Args[1:]))
 }
 
 func normalMain() {

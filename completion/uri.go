@@ -1,6 +1,7 @@
 package completion
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -41,8 +42,9 @@ func (v UriValue) Complete(match string) (output []flags.Completion) {
 
 	// match is prefix
 	if strings.HasPrefix(ussPrefix, match) {
+		prefix := DoubleQuote
 		return []flags.Completion{
-			{Item: DoubleQuote + `uss://` + NoSpace},
+			{Item: prefix + `uss://` + NoSpace},
 		}
 	}
 
@@ -97,4 +99,15 @@ func WriteToLog(format string, args ...any) {
 	if err := file.Close(); err != nil {
 		panic(err)
 	}
+}
+
+func PrintArray(values []string) string {
+	var buf bytes.Buffer
+	for index, v := range values {
+		if index > 0 {
+			buf.WriteString(" ")
+		}
+		buf.WriteString(fmt.Sprintf("%q", v))
+	}
+	return buf.String()
 }
