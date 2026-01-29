@@ -150,30 +150,59 @@ func handleComplete(match string, withFile bool) (output []flags.Completion) {
 
 func handleAttrComplete(prefix string, attrsStr string) []flags.Completion {
 	attrsStr = strings.TrimSpace(attrsStr)
-	var attrList []string
-	if len(attrsStr) > 0 {
-		attrList = strings.Split(attrsStr, ",")
-		for i := range attrList {
-			attrList[i] = strings.TrimSpace(attrList[i])
+
+	lastAttr := attrsStr
+	lastCommaIndex := strings.LastIndex(attrsStr, ",")
+	existedKeys := map[string]struct{}{}
+	if lastCommaIndex >= 0 {
+		lastAttr = attrsStr[lastCommaIndex+1:]
+		prefix = prefix + attrsStr[:lastCommaIndex+1]
+
+		for _, kv := range strings.Split(attrsStr[:lastCommaIndex], ",") {
+			kv = strings.TrimSpace(kv)
+			equalIndex := strings.Index(kv, "=")
+			if equalIndex <= 0 {
+				continue
+			}
+			key := kv[:equalIndex]
+			existedKeys[key] = struct{}{}
 		}
 	}
 
-	allMatches := []string{
-		"date=",
-		"asset_type=equity",
-		"asset_type=options",
+	allMatches := map[string][]string{
+		"date": {
+			"date=",
+		},
+		"asset_type": {
+			"asset_type=equity",
+			"asset_type=options",
+		},
 	}
-
-	lastAttr := ""
-	if len(attrList) > 0 {
-		lastAttr = attrList[len(attrList)-1]
+	keyList := []string{
+		"date",
+		"asset_type",
 	}
 
 	var result []flags.Completion
-	for _, m := range allMatches {
-		if strings.HasPrefix(m, lastAttr) {
-			result = append(result, flags.Completion{Item: prefix + m})
+	for _, attrKey := range keyList {
+		_, existed := existedKeys[attrKey]
+		if existed {
 			continue
+		}
+
+		for _, kv := range allMatches[attrKey] {
+			if !strings.HasPrefix(kv, lastAttr) {
+				continue
+			}
+
+			matchStr := kv
+			if attrKey != "date" && len(existedKeys) >= len(keyList)-1 {
+				matchStr += "}" + DoubleQuote
+			}
+
+			result = append(result, flags.Completion{
+				Item: prefix + matchStr + NoSpace,
+			})
 		}
 	}
 	return result

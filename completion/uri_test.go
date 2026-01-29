@@ -230,9 +230,9 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		assert.Equal(
 			t,
 			[]string{
-				`"uss://test01{date=`,
-				`"uss://test01{asset_type=equity`,
-				`"uss://test01{asset_type=options`,
+				`"uss://test01{date=<NS>`,
+				`"uss://test01{asset_type=equity<NS>`,
+				`"uss://test01{asset_type=options<NS>`,
 			},
 			v.completeUriAndFile(`"uss://test01{`),
 		)
@@ -244,9 +244,34 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		assert.Equal(
 			t,
 			[]string{
-				`"uss://test01{asset_type=equity`,
+				`"uss://test01{asset_type=equity<NS>`,
 			},
 			v.completeUriAndFile(`"uss://test01{asset_type=e`),
+		)
+		assert.Equal(t, 0, v.fileMatchCalls)
+	})
+
+	t.Run("attr completion with full attr value", func(t *testing.T) {
+		v := newUriValueTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://test01{date=20250809,asset_type=equity}"<NS>`,
+				`"uss://test01{date=20250809,asset_type=options}"<NS>`,
+			},
+			v.completeUriAndFile(`"uss://test01{date=20250809,`),
+		)
+		assert.Equal(t, 0, v.fileMatchCalls)
+	})
+
+	t.Run("attr completion with full attr asset_type, date last", func(t *testing.T) {
+		v := newUriValueTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://test01{asset_type=equity,date=<NS>`,
+			},
+			v.completeUriAndFile(`"uss://test01{asset_type=equity,`),
 		)
 		assert.Equal(t, 0, v.fileMatchCalls)
 	})
