@@ -100,8 +100,11 @@ func handleComplete(match string, withFile bool) (output []flags.Completion) {
 	if openIndex <= 0 {
 		return resultWithOpenQuote
 	}
+
 	if closeIndex <= 0 {
-		return resultWithOpenQuote
+		prefix := DoubleQuote + match[:openIndex+1]
+		attrsStr := match[openIndex+1:]
+		return handleAttrComplete(prefix, attrsStr)
 	}
 
 	prefix := DoubleQuote + match[:closeIndex+1] + DoubleQuote
@@ -141,6 +144,37 @@ func handleComplete(match string, withFile bool) (output []flags.Completion) {
 		result = append(result, flags.Completion{
 			Item: prefix + "/" + fileMatch,
 		})
+	}
+	return result
+}
+
+func handleAttrComplete(prefix string, attrsStr string) []flags.Completion {
+	attrsStr = strings.TrimSpace(attrsStr)
+	var attrList []string
+	if len(attrsStr) > 0 {
+		attrList = strings.Split(attrsStr, ",")
+		for i := range attrList {
+			attrList[i] = strings.TrimSpace(attrList[i])
+		}
+	}
+
+	allMatches := []string{
+		"date=",
+		"asset_type=equity",
+		"asset_type=options",
+	}
+
+	lastAttr := ""
+	if len(attrList) > 0 {
+		lastAttr = attrList[len(attrList)-1]
+	}
+
+	var result []flags.Completion
+	for _, m := range allMatches {
+		if strings.HasPrefix(m, lastAttr) {
+			result = append(result, flags.Completion{Item: prefix + m})
+			continue
+		}
 	}
 	return result
 }

@@ -224,6 +224,32 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		// check input
 		assert.Equal(t, "", v.fileMatchInput)
 	})
+
+	t.Run("with attr completion at start", func(t *testing.T) {
+		v := newUriValueTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://test01{date=`,
+				`"uss://test01{asset_type=equity`,
+				`"uss://test01{asset_type=options`,
+			},
+			v.completeUriAndFile(`"uss://test01{`),
+		)
+		assert.Equal(t, 0, v.fileMatchCalls)
+	})
+
+	t.Run("attr completion with prefix", func(t *testing.T) {
+		v := newUriValueTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://test01{asset_type=equity`,
+			},
+			v.completeUriAndFile(`"uss://test01{asset_type=e`),
+		)
+		assert.Equal(t, 0, v.fileMatchCalls)
+	})
 }
 
 func TestUri_Complete(t *testing.T) {
