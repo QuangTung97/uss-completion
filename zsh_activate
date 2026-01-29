@@ -1,0 +1,19 @@
+export PATH="$PATH:."
+
+_uss_completion() {
+    # Call the binary and get the output
+    local -a results
+
+    results=("${(@f)$(GO_FLAGS_COMPLETION=1 $words)}")
+
+    # Logic: If the suggestion ends in '<NS>', don't add a space
+    for item in "${results[@]}"; do
+        if [[ "$item" == *"<NS>" ]]; then
+            compadd -S '' "$item"
+        else
+            compadd "$item"  # Default behavior (adds space)
+        fi
+    done
+}
+
+compdef _uss_completion uss

@@ -48,6 +48,13 @@ type VolumeCmd struct {
 
 func printCompletionList(items []flags.Completion) {
 	for _, v := range items {
+		fmt.Println(v.Item)
+	}
+	os.Exit(0)
+
+	// TODO
+
+	for _, v := range items {
 		if strings.HasSuffix(v.Item, completion.NoSpace) {
 			v.Item = strings.TrimSuffix(v.Item, completion.NoSpace)
 			fmt.Println(v.Item)
@@ -59,12 +66,12 @@ func printCompletionList(items []flags.Completion) {
 }
 
 func main() {
-	normalMain()
-	// simpleCompletion()
+	// normalMain()
+	simpleCompletion()
 }
 
 func simpleCompletion() {
-	completion.WriteToLog("%s\n", completion.PrintArray(os.Args[1:]))
+	completion.WriteToLog("%s\n", completion.PrintArray(os.Args))
 }
 
 func normalMain() {
