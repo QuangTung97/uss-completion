@@ -63,7 +63,29 @@ func removeQuoted(match string, withOpenQuote *bool) string {
 	return match[:closeIndex] + match[closeIndex+1:]
 }
 
-func handleComplete(match string, withFile bool) (output []flags.Completion) {
+func handleComplete(match string, withFile bool) []flags.Completion {
+	output := doHandleComplete(match, withFile)
+	if len(output) != 1 {
+		return output
+	}
+
+	if !strings.HasPrefix(match, DoubleQuote) {
+		return output
+	}
+
+	item := output[0].Item
+	if !strings.HasSuffix(item, NoSpace) {
+		return output
+	}
+
+	item = strings.TrimSuffix(item, NoSpace)
+	return []flags.Completion{
+		{Item: item + BlackBullet + NoSpace},
+		{Item: item + WhiteBullet + NoSpace},
+	}
+}
+
+func doHandleComplete(match string, withFile bool) (output []flags.Completion) {
 	WriteToLog("Match: '%s'\n", match)
 	defer func() {
 		WriteToLog("Output: '%+v'\n", output)

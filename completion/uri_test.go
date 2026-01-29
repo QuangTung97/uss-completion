@@ -28,7 +28,8 @@ func TestUriAndFile_Complete__Basic(t *testing.T) {
 	t.Run("with uss prefix, with open double quote", func(t *testing.T) {
 		v := UriAndFile("")
 		assert.Equal(t, []flags.Completion{
-			{Item: `"uss://<NS>`},
+			{Item: `"uss://` + BlackBullet + NoSpace},
+			{Item: `"uss://` + WhiteBullet + NoSpace},
 		}, v.Complete(`"uss`))
 	})
 
@@ -244,7 +245,8 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		assert.Equal(
 			t,
 			[]string{
-				`"uss://test01{asset_type=equity<NS>`,
+				`"uss://test01{asset_type=equity` + BlackBullet + NoSpace,
+				`"uss://test01{asset_type=equity` + WhiteBullet + NoSpace,
 			},
 			v.completeUriAndFile(`"uss://test01{asset_type=e`),
 		)
@@ -269,7 +271,8 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		assert.Equal(
 			t,
 			[]string{
-				`"uss://test01{asset_type=equity,date=<NS>`,
+				`"uss://test01{asset_type=equity,date=` + BlackBullet + NoSpace,
+				`"uss://test01{asset_type=equity,date=` + WhiteBullet + NoSpace,
 			},
 			v.completeUriAndFile(`"uss://test01{asset_type=equity,`),
 		)
