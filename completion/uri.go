@@ -48,10 +48,12 @@ func listFilesByPattern(match string) []string {
 
 var globalListFilesByPatternFunc = listFilesByPattern
 
-func removeQuoted(match string) string {
+func removeQuoted(match string, withOpenQuote *bool) string {
 	if !strings.HasPrefix(match, DoubleQuote) {
 		return match
 	}
+
+	*withOpenQuote = true
 
 	match = strings.TrimPrefix(match, DoubleQuote)
 	closeIndex := strings.Index(match, DoubleQuote)
@@ -67,7 +69,8 @@ func handleComplete(match string, withFile bool) (output []flags.Completion) {
 		WriteToLog("Output: '%+v'\n", output)
 	}()
 
-	match = removeQuoted(match)
+	var withOpenQuote bool
+	match = removeQuoted(match, &withOpenQuote)
 
 	const ussPrefix = "uss://"
 	if match == ussPrefix {
@@ -89,11 +92,16 @@ func handleComplete(match string, withFile bool) (output []flags.Completion) {
 	openIndex := strings.Index(match, "{")
 	closeIndex := strings.Index(match, "}")
 
+	var resultWithOpenQuote []flags.Completion
+	if !withOpenQuote {
+		resultWithOpenQuote = append(resultWithOpenQuote, flags.Completion{Item: DoubleQuote + match})
+	}
+
 	if openIndex <= 0 {
-		return nil
+		return resultWithOpenQuote
 	}
 	if closeIndex <= 0 {
-		return nil
+		return resultWithOpenQuote
 	}
 
 	prefix := DoubleQuote + match[:closeIndex+1] + DoubleQuote

@@ -40,6 +40,7 @@ func TestUriAndFile_Complete__Basic(t *testing.T) {
 
 type uriValueTest struct {
 	fileMatchInput string
+	fileMatchCalls int
 	fileList       []string
 }
 
@@ -51,6 +52,7 @@ func newUriValueTest(t *testing.T) *uriValueTest {
 	prevFunc := globalListFilesByPatternFunc
 	globalListFilesByPatternFunc = func(match string) []string {
 		v.fileMatchInput = match
+		v.fileMatchCalls++
 		return v.fileList
 	}
 	t.Cleanup(func() {
@@ -101,6 +103,22 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 
 		// check input
 		assert.Equal(t, "", v.fileMatchInput)
+		assert.Equal(t, 1, v.fileMatchCalls)
+	})
+
+	t.Run("with dataset name, and no quote", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://test01`,
+			},
+			v.completeUriAndFile(`uss://test01`),
+		)
+
+		// check input
+		assert.Equal(t, 0, v.fileMatchCalls)
 	})
 
 	t.Run("with match filename", func(t *testing.T) {
