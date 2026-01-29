@@ -8,6 +8,14 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
+const ussPrefix = "uss://"
+
+func isZshShell() bool {
+	return os.Getenv("GO_FLAGS_SHELL") == "zsh"
+}
+
+var IsZshShellFunc = isZshShell
+
 type Uri string
 
 var _ flags.Completer = Uri("")
@@ -63,8 +71,29 @@ func removeQuoted(match string, withOpenQuote *bool) string {
 	return match[:closeIndex] + match[closeIndex+1:]
 }
 
-func handleComplete(match string, withFile bool) []flags.Completion {
-	output := doHandleComplete(match, withFile)
+func handleComplete(match string, withFile bool) (output []flags.Completion) {
+	WriteToLog("Match: '%s'\n", match)
+	defer func() {
+		WriteToLog("Output: '%+v'\n", output)
+	}()
+
+	if len(match) == 0 {
+		return []flags.Completion{
+			{Item: DoubleQuote + ussPrefix + NoSpace},
+		}
+	}
+
+	output = doHandleComplete(match, withFile)
+	if IsZshShellFunc() {
+		for i := range output {
+			output[i].Item = strings.TrimPrefix(output[i].Item, DoubleQuote)
+		}
+	}
+	return output
+}
+
+func doHandleComplete(match string, withFile bool) []flags.Completion {
+	output := coreHandleComplete(match, withFile)
 	if len(output) != 1 {
 		return output
 	}
@@ -83,31 +112,28 @@ func handleComplete(match string, withFile bool) []flags.Completion {
 		return nil
 	}
 
+	if IsZshShellFunc() {
+		return output
+	}
+
 	return []flags.Completion{
 		{Item: item + BlackBullet + NoSpace},
 		{Item: item + WhiteBullet + NoSpace},
 	}
 }
 
-func doHandleComplete(match string, withFile bool) (output []flags.Completion) {
-	WriteToLog("Match: '%s'\n", match)
-	defer func() {
-		WriteToLog("Output: '%+v'\n", output)
-	}()
-
+func coreHandleComplete(match string, withFile bool) []flags.Completion {
 	var withOpenQuote bool
 	match = removeQuoted(match, &withOpenQuote)
 
-	const ussPrefix = "uss://"
 	if match == ussPrefix {
 		return nil
 	}
 
 	// match is prefix
 	if strings.HasPrefix(ussPrefix, match) {
-		prefix := DoubleQuote
 		return []flags.Completion{
-			{Item: prefix + `uss://` + NoSpace},
+			{Item: DoubleQuote + ussPrefix + NoSpace},
 		}
 	}
 
@@ -134,6 +160,10 @@ func doHandleComplete(match string, withFile bool) (output []flags.Completion) {
 	}
 
 	prefix := DoubleQuote + match[:closeIndex+1] + DoubleQuote
+	if IsZshShellFunc() {
+		prefix = match[:closeIndex+1]
+	}
+
 	if !withFile {
 		return []flags.Completion{
 			{Item: prefix},

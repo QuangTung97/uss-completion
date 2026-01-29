@@ -299,3 +299,111 @@ func TestUri_Complete(t *testing.T) {
 		assert.Equal(t, "", v.fileMatchInput)
 	})
 }
+
+func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
+	newTest := func(t *testing.T) *uriValueTest {
+		IsZshShellFunc = func() bool {
+			return true
+		}
+		t.Cleanup(func() {
+			IsZshShellFunc = isZshShell
+		})
+		return newUriValueTest(t)
+	}
+
+	t.Run("empty", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://<NS>`,
+			},
+			v.completeUriAndFile(``),
+		)
+	})
+
+	t.Run("with uss prefix", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`uss://<NS>`,
+			},
+			v.completeUriAndFile(`uss`),
+		)
+	})
+
+	t.Run("with uss prefix and quote", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`uss://<NS>`,
+			},
+			v.completeUriAndFile(`"uss`),
+		)
+	})
+
+	t.Run("with empty attribute", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`uss://hello{date=<NS>`,
+				`uss://hello{asset_type=equity<NS>`,
+				`uss://hello{asset_type=options<NS>`,
+			},
+			v.completeUriAndFile(`uss://hello{`),
+		)
+	})
+
+	t.Run("second attribute", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`uss://hello{asset_type=equity,date=<NS>`,
+			},
+			v.completeUriAndFile(`uss://hello{asset_type=equity,d`),
+		)
+	})
+
+	t.Run("full", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`uss://hello{asset_type=equity,date=20250102}`,
+			},
+			v.completeUriAndFile(`uss://hello{asset_type=equity,date=20250102}`),
+		)
+	})
+
+	t.Run("full, with files", func(t *testing.T) {
+		v := newTest(t)
+		v.fileList = []string{
+			"file01",
+			"file02",
+		}
+		assert.Equal(
+			t,
+			[]string{
+				`uss://hello{asset_type=equity,date=20250102}`,
+				`uss://hello{asset_type=equity,date=20250102}/file01`,
+				`uss://hello{asset_type=equity,date=20250102}/file02`,
+			},
+			v.completeUriAndFile(`uss://hello{asset_type=equity,date=20250102}`),
+		)
+	})
+
+	t.Run("with dataset name only", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`uss://hello`,
+			},
+			v.completeUriAndFile(`uss://hello`),
+		)
+	})
+}

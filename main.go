@@ -47,13 +47,14 @@ type VolumeCmd struct {
 }
 
 func printCompletionList(items []flags.Completion) {
-	for _, v := range items {
-		fmt.Println(v.Item)
+	if completion.IsZshShellFunc() {
+		for _, v := range items {
+			fmt.Println(v.Item)
+		}
+		os.Exit(0)
 	}
-	os.Exit(0)
 
-	// TODO
-
+	// normal bash shell
 	for _, v := range items {
 		if strings.HasSuffix(v.Item, completion.NoSpace) {
 			v.Item = strings.TrimSuffix(v.Item, completion.NoSpace)

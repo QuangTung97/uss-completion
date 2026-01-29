@@ -14,8 +14,8 @@ _uss_completion() {
         fi
     done
 
-    (( ${#ns_items} > 0 )) && compadd -S '' -a ns_items
-    (( ${#regular_items} > 0 )) && compadd -a regular_items
+    (( ${#ns_items} > 0 )) && compadd -S '' -Q -a ns_items
+    (( ${#regular_items} > 0 )) && compadd -Q -a regular_items
 }
 
 compdef _uss_completion uss
