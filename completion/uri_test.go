@@ -266,15 +266,12 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		assert.Equal(t, 0, v.fileMatchCalls)
 	})
 
-	t.Run("attr completion with full attr asset_type, date last", func(t *testing.T) {
+	t.Run("attr completion with full attr asset_type, date last, same input and output", func(t *testing.T) {
 		v := newUriValueTest(t)
 		assert.Equal(
 			t,
-			[]string{
-				`"uss://test01{asset_type=equity,date=` + BlackBullet + NoSpace,
-				`"uss://test01{asset_type=equity,date=` + WhiteBullet + NoSpace,
-			},
-			v.completeUriAndFile(`"uss://test01{asset_type=equity,`),
+			[]string{},
+			v.completeUriAndFile(`"uss://test01{asset_type=equity,date=`),
 		)
 		assert.Equal(t, 0, v.fileMatchCalls)
 	})

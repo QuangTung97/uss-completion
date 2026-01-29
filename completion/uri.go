@@ -79,6 +79,10 @@ func handleComplete(match string, withFile bool) []flags.Completion {
 	}
 
 	item = strings.TrimSuffix(item, NoSpace)
+	if item == match {
+		return nil
+	}
+
 	return []flags.Completion{
 		{Item: item + BlackBullet + NoSpace},
 		{Item: item + WhiteBullet + NoSpace},
