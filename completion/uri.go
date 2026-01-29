@@ -155,7 +155,7 @@ func handleAttrComplete(prefix string, attrsStr string) []flags.Completion {
 	lastCommaIndex := strings.LastIndex(attrsStr, ",")
 	existedKeys := map[string]struct{}{}
 	if lastCommaIndex >= 0 {
-		lastAttr = attrsStr[lastCommaIndex+1:]
+		lastAttr = strings.TrimSpace(attrsStr[lastCommaIndex+1:])
 		prefix = prefix + attrsStr[:lastCommaIndex+1]
 
 		for _, kv := range strings.Split(attrsStr[:lastCommaIndex], ",") {
