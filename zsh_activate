@@ -1,19 +1,21 @@
 export PATH="$PATH:."
 
 _uss_completion() {
-    # Call the binary and get the output
     local -a results
 
-    results=("${(@f)$(GO_FLAGS_COMPLETION=1 $words)}")
+    results=("${(@f)$(GO_FLAGS_COMPLETION=1 GO_FLAGS_SHELL=zsh "${words[@]}")}")
 
-    # Logic: If the suggestion ends in '<NS>', don't add a space
+    local -a ns_items regular_items
     for item in "${results[@]}"; do
         if [[ "$item" == *"<NS>" ]]; then
-            compadd -S '' "$item"
+            ns_items+=("${item%<NS>}")
         else
-            compadd "$item"  # Default behavior (adds space)
+            regular_items+=("$item")
         fi
     done
+
+    (( ${#ns_items} > 0 )) && compadd -S '' -a ns_items
+    (( ${#regular_items} > 0 )) && compadd -a regular_items
 }
 
 compdef _uss_completion uss

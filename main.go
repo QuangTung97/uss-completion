@@ -66,8 +66,8 @@ func printCompletionList(items []flags.Completion) {
 }
 
 func main() {
-	// normalMain()
-	simpleCompletion()
+	normalMain()
+	// simpleCompletion()
 }
 
 func simpleCompletion() {
