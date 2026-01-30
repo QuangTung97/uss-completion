@@ -7,7 +7,7 @@ fi
 
 _completion_uss_cd() {
   local word_len=${#words[@]}
-  local last_word="${words[$word_len - 1]}"
+  local last_word="${words[$word_len]}"
   local last_word_trim=${last_word#"\""}
 
   if [[ "$last_word_trim" == "uss"* ]]; then
