@@ -86,7 +86,8 @@ func handleComplete(match string, withFile bool) (output []flags.Completion) {
 	output = doHandleComplete(match, withFile)
 	if IsZshShellFunc() {
 		for i := range output {
-			output[i].Item = strings.TrimPrefix(output[i].Item, DoubleQuote)
+			item := output[i].Item
+			output[i].Item = strings.TrimPrefix(item, DoubleQuote)
 		}
 	}
 	return output
@@ -153,10 +154,15 @@ func coreHandleComplete(match string, withFile bool) []flags.Completion {
 		return resultWithOpenQuote
 	}
 
+	beforeBracketPart := match[:openIndex+1]
+	if IsZshShellFunc() && !withOpenQuote {
+		beforeBracketPart = match[:openIndex]
+	}
+
 	if closeIndex <= 0 {
-		prefix := DoubleQuote + match[:openIndex+1]
+		prefix := DoubleQuote + beforeBracketPart
 		attrsStr := match[openIndex+1:]
-		return handleAttrComplete(prefix, attrsStr)
+		return handleAttrComplete(prefix, attrsStr, withOpenQuote)
 	}
 
 	prefix := DoubleQuote + match[:closeIndex+1] + DoubleQuote
@@ -204,7 +210,7 @@ func coreHandleComplete(match string, withFile bool) []flags.Completion {
 	return result
 }
 
-func handleAttrComplete(prefix string, attrsStr string) []flags.Completion {
+func handleAttrComplete(prefix string, attrsStr string, withOpenQuote bool) []flags.Completion {
 	attrsStr = strings.TrimSpace(attrsStr)
 
 	lastAttr := attrsStr
@@ -212,7 +218,9 @@ func handleAttrComplete(prefix string, attrsStr string) []flags.Completion {
 	existedKeys := map[string]struct{}{}
 	if lastCommaIndex >= 0 {
 		lastAttr = strings.TrimSpace(attrsStr[lastCommaIndex+1:])
-		prefix = prefix + attrsStr[:lastCommaIndex+1]
+		if !IsZshShellFunc() || withOpenQuote {
+			prefix = prefix + attrsStr[:lastCommaIndex+1]
+		}
 
 		for _, kv := range strings.Split(attrsStr[:lastCommaIndex], ",") {
 			kv = strings.TrimSpace(kv)

@@ -353,7 +353,7 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 				`uss://hello{asset_type=equity<NS>`,
 				`uss://hello{asset_type=options<NS>`,
 			},
-			v.completeUriAndFile(`uss://hello{`),
+			v.completeUriAndFile(`"uss://hello{`),
 		)
 	})
 
@@ -364,7 +364,7 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 			[]string{
 				`uss://hello{asset_type=equity,date=<NS>`,
 			},
-			v.completeUriAndFile(`uss://hello{asset_type=equity,d`),
+			v.completeUriAndFile(`"uss://hello{asset_type=equity,d`),
 		)
 	})
 
@@ -375,7 +375,7 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 			[]string{
 				`uss://hello{asset_type=equity,date=20250102}`,
 			},
-			v.completeUriAndFile(`uss://hello{asset_type=equity,date=20250102}`),
+			v.completeUriAndFile(`"uss://hello{asset_type=equity,date=20250102}`),
 		)
 	})
 
@@ -392,7 +392,7 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 				`uss://hello{asset_type=equity,date=20250102}/file01`,
 				`uss://hello{asset_type=equity,date=20250102}/file02`,
 			},
-			v.completeUriAndFile(`uss://hello{asset_type=equity,date=20250102}`),
+			v.completeUriAndFile(`"uss://hello{asset_type=equity,date=20250102}`),
 		)
 	})
 
@@ -404,6 +404,30 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 				`uss://hello`,
 			},
 			v.completeUriAndFile(`uss://hello`),
+		)
+	})
+
+	t.Run("with empty attribute, without prefix quote", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`uss://hellodate=<NS>`,
+				`uss://helloasset_type=equity<NS>`,
+				`uss://helloasset_type=options<NS>`,
+			},
+			v.completeUriAndFile(`uss://hello{`),
+		)
+	})
+
+	t.Run("with second attr, without prefix quote", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`uss://hellodate=<NS>`,
+			},
+			v.completeUriAndFile(`uss://hello{asset_type=equity,d`),
 		)
 	})
 }
