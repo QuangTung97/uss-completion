@@ -56,50 +56,37 @@ func listFilesByPattern(match string) []string {
 
 var globalListFilesByPatternFunc = listFilesByPattern
 
-func removeQuoted(match string, withOpenQuote *bool) string {
-	if !strings.HasPrefix(match, DoubleQuote) {
-		return match
-	}
-
-	*withOpenQuote = true
-
-	match = strings.TrimPrefix(match, DoubleQuote)
-	closeIndex := strings.Index(match, DoubleQuote)
-	if closeIndex < 0 {
-		return match
-	}
-	return match[:closeIndex] + match[closeIndex+1:]
-}
-
 func handleComplete(match string, withFile bool) (output []flags.Completion) {
 	WriteToLog("Match: '%s'\n", match)
 	defer func() {
 		WriteToLog("Output: '%+v'\n", output)
 	}()
 
+	quote := &QuoteHandler{}
+
 	if len(match) == 0 {
 		return []flags.Completion{
-			{Item: DoubleQuote + ussPrefix + NoSpace},
+			{Item: quote.getQuoteChar() + ussPrefix + NoSpace},
 		}
 	}
 
-	output = doHandleComplete(match, withFile)
+	output = doHandleComplete(quote, match, withFile)
 	if IsZshShellFunc() {
 		for i := range output {
 			item := output[i].Item
-			output[i].Item = strings.TrimPrefix(item, DoubleQuote)
+			output[i].Item = strings.TrimPrefix(item, quote.getQuoteChar())
 		}
 	}
 	return output
 }
 
-func doHandleComplete(match string, withFile bool) []flags.Completion {
-	output := coreHandleComplete(match, withFile)
+func doHandleComplete(quote *QuoteHandler, match string, withFile bool) []flags.Completion {
+	output := coreHandleComplete(quote, match, withFile)
 	if len(output) != 1 {
 		return output
 	}
 
-	if !strings.HasPrefix(match, DoubleQuote) {
+	if !quote.withOpenQuote {
 		return output
 	}
 
@@ -123,10 +110,10 @@ func doHandleComplete(match string, withFile bool) []flags.Completion {
 	}
 }
 
-func coreHandleComplete(match string, withFile bool) []flags.Completion {
-	var withOpenQuote bool
-	match = removeQuoted(match, &withOpenQuote)
-
+func coreHandleComplete(
+	quote *QuoteHandler, match string, withFile bool,
+) []flags.Completion {
+	match = quote.removeQuoted(match)
 	if match == ussPrefix {
 		return nil
 	}
@@ -134,7 +121,7 @@ func coreHandleComplete(match string, withFile bool) []flags.Completion {
 	// match is prefix
 	if strings.HasPrefix(ussPrefix, match) {
 		return []flags.Completion{
-			{Item: DoubleQuote + ussPrefix + NoSpace},
+			{Item: quote.getQuoteChar() + ussPrefix + NoSpace},
 		}
 	}
 
@@ -146,8 +133,10 @@ func coreHandleComplete(match string, withFile bool) []flags.Completion {
 	closeIndex := strings.Index(match, "}")
 
 	var resultWithOpenQuote []flags.Completion
-	if !withOpenQuote {
-		resultWithOpenQuote = append(resultWithOpenQuote, flags.Completion{Item: DoubleQuote + match})
+	if !quote.withOpenQuote {
+		resultWithOpenQuote = append(resultWithOpenQuote, flags.Completion{
+			Item: quote.getQuoteChar() + match,
+		})
 	}
 
 	if openIndex <= 0 {
@@ -155,17 +144,17 @@ func coreHandleComplete(match string, withFile bool) []flags.Completion {
 	}
 
 	beforeBracketPart := match[:openIndex+1]
-	if IsZshShellFunc() && !withOpenQuote {
+	if IsZshShellFunc() && !quote.withOpenQuote {
 		beforeBracketPart = match[:openIndex]
 	}
 
 	if closeIndex <= 0 {
-		prefix := DoubleQuote + beforeBracketPart
+		prefix := quote.getQuoteChar() + beforeBracketPart
 		attrsStr := match[openIndex+1:]
-		return handleAttrComplete(prefix, attrsStr, withOpenQuote)
+		return handleAttrComplete(quote, prefix, attrsStr, quote.withOpenQuote)
 	}
 
-	prefix := DoubleQuote + match[:closeIndex+1] + DoubleQuote
+	prefix := quote.getQuoteChar() + match[:closeIndex+1] + quote.getQuoteChar()
 	if IsZshShellFunc() {
 		prefix = match[:closeIndex+1]
 	}
@@ -210,7 +199,10 @@ func coreHandleComplete(match string, withFile bool) []flags.Completion {
 	return result
 }
 
-func handleAttrComplete(prefix string, attrsStr string, withOpenQuote bool) []flags.Completion {
+func handleAttrComplete(
+	quote *QuoteHandler,
+	prefix string, attrsStr string, withOpenQuote bool,
+) []flags.Completion {
 	attrsStr = strings.TrimSpace(attrsStr)
 
 	lastAttr := attrsStr
@@ -261,7 +253,7 @@ func handleAttrComplete(prefix string, attrsStr string, withOpenQuote bool) []fl
 
 			matchStr := kv
 			if attrKey != "date" && len(existedKeys) >= len(keyList)-1 {
-				matchStr += "}" + DoubleQuote
+				matchStr += "}" + quote.getQuoteChar()
 			}
 
 			result = append(result, flags.Completion{

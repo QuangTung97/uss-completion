@@ -21,7 +21,7 @@ func TestUriAndFile_Complete__Basic(t *testing.T) {
 	t.Run("with uss prefix", func(t *testing.T) {
 		v := UriAndFile("")
 		assert.Equal(t, []flags.Completion{
-			{Item: DoubleQuote + "uss://<NS>"},
+			{Item: `"uss://<NS>`},
 		}, v.Complete("us"))
 	})
 
@@ -35,7 +35,7 @@ func TestUriAndFile_Complete__Basic(t *testing.T) {
 
 	t.Run("with full prefix", func(t *testing.T) {
 		v := UriAndFile("")
-		assert.Equal(t, []flags.Completion(nil), v.Complete(DoubleQuote+"uss://"))
+		assert.Equal(t, []flags.Completion(nil), v.Complete(`"uss://`))
 	})
 }
 
@@ -160,6 +160,28 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 				`"uss://test01{date=20250219,asset_type=at}"/file02`,
 			},
 			v.completeUriAndFile(`"uss://test01{date=20250219,asset_type=at}/file`),
+		)
+
+		// check input
+		assert.Equal(t, "file", v.fileMatchInput)
+	})
+
+	t.Run("no close quote, with match filename, single quote", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		v.fileList = []string{
+			"file01",
+			"file02",
+			"example",
+		}
+
+		assert.Equal(
+			t,
+			[]string{
+				`'uss://test01{date=20250219,asset_type=at}'/file01`,
+				`'uss://test01{date=20250219,asset_type=at}'/file02`,
+			},
+			v.completeUriAndFile(`'uss://test01{date=20250219,asset_type=at}/file`),
 		)
 
 		// check input
@@ -428,6 +450,17 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 				`uss://hellodate=<NS>`,
 			},
 			v.completeUriAndFile(`uss://hello{asset_type=equity,d`),
+		)
+	})
+
+	t.Run("with uss prefix and single quote", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`uss://<NS>`,
+			},
+			v.completeUriAndFile(`'uss`),
 		)
 	})
 }

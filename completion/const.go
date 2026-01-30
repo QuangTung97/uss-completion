@@ -1,8 +1,7 @@
 package completion
 
 const (
-	NoSpace     = "<NS>"
-	DoubleQuote = `"`
+	NoSpace = "<NS>"
 
 	BlackBullet = "•"
 	WhiteBullet = "◦"
