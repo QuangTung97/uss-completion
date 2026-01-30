@@ -40,6 +40,7 @@ func TestUriAndFile_Complete__Basic(t *testing.T) {
 }
 
 type uriValueTest struct {
+	fileMatchDir   string
 	fileMatchInput string
 	fileMatchCalls int
 	fileList       []string
@@ -51,7 +52,8 @@ func newUriValueTest(t *testing.T) *uriValueTest {
 	v := &uriValueTest{}
 
 	prevFunc := globalListFilesByPatternFunc
-	globalListFilesByPatternFunc = func(match string) []string {
+	globalListFilesByPatternFunc = func(dir string, match string) []string {
+		v.fileMatchDir = dir
 		v.fileMatchInput = match
 		v.fileMatchCalls++
 		return v.fileList

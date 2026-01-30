@@ -17,8 +17,8 @@ func getAllVersionsTest() VersionList {
 
 var GetAllVersionsFunc = getAllVersionsTest
 
-func getUriDiskPathTest(string) string {
-	return ""
+func getUriDiskPathTest(_ string) string {
+	return "uss_storage"
 }
 
 var GetUriDiskPathFunc = getUriDiskPathTest

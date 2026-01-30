@@ -4,4 +4,6 @@ build:
 
 .PHONY: test
 test:
+	go fmt ./...
+	go mod tidy
 	go test ./...

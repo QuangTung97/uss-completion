@@ -2,7 +2,6 @@ package completion
 
 import (
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/jessevdk/go-flags"
@@ -33,28 +32,6 @@ var _ flags.Completer = UriAndFile("")
 func (UriAndFile) Complete(match string) (output []flags.Completion) {
 	return handleComplete(match, true)
 }
-
-// ======================================================
-
-func listFilesByPattern(match string) []string {
-	nameList, _ := filepath.Glob(match + "*")
-	result := make([]string, 0, len(nameList))
-
-	for _, name := range nameList {
-		statInfo, _ := os.Stat(name)
-		if statInfo != nil {
-			if statInfo.IsDir() {
-				name = name + "/" + NoSpace
-			}
-		}
-
-		result = append(result, name)
-	}
-
-	return result
-}
-
-var globalListFilesByPatternFunc = listFilesByPattern
 
 func handleComplete(match string, withFile bool) (output []flags.Completion) {
 	WriteToLog("Match: '%s'\n", match)
@@ -167,7 +144,7 @@ func coreHandleComplete(
 
 	remainMatch := match[closeIndex+1:]
 	uriString := match[:closeIndex+1]
-	searchPath := filepath.Join(GetUriDiskPathFunc(uriString), remainMatch)
+	searchDir := GetUriDiskPathFunc(uriString)
 
 	var result []flags.Completion
 
@@ -176,7 +153,7 @@ func coreHandleComplete(
 		result = append(result, flags.Completion{
 			Item: prefix,
 		})
-		for _, fileMatch := range globalListFilesByPatternFunc(searchPath) {
+		for _, fileMatch := range globalListFilesByPatternFunc(searchDir, "") {
 			result = append(result, flags.Completion{
 				Item: prefix + "/" + fileMatch,
 			})
@@ -190,9 +167,8 @@ func coreHandleComplete(
 
 	// remove prefix
 	remainMatch = remainMatch[1:]
-	searchPath = filepath.Join(GetUriDiskPathFunc(uriString), remainMatch)
 
-	for _, fileMatch := range globalListFilesByPatternFunc(searchPath) {
+	for _, fileMatch := range globalListFilesByPatternFunc(searchDir, remainMatch) {
 		if !strings.HasPrefix(fileMatch, remainMatch) {
 			continue
 		}
