@@ -76,6 +76,11 @@ func simpleCompletion() {
 }
 
 func normalMain() {
+	if os.Getenv("GO_FLAGS_COMPLETE_URI") != "" {
+		completeURIFromArgs()
+		return
+	}
+
 	parser := flags.NewParser(&rootCmd, flags.Default)
 	parser.CompletionHandler = printCompletionList
 
@@ -88,4 +93,15 @@ func normalMain() {
 			}
 		}
 	}
+}
+
+func completeURIFromArgs() {
+	uri := ""
+	if len(os.Args) >= 2 {
+		uri = os.Args[1]
+	}
+
+	var empty completion.UriAndFile
+	items := empty.Complete(uri)
+	printCompletionList(items)
 }
