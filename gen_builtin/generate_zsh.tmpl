@@ -1,0 +1,43 @@
+_completion_remove_quote() {
+  local input="$1"
+  if [[ "$input" == \"* ]]; then
+    echo "${input#\"}"
+  else
+    echo "${input#\'}"
+  fi
+}
+{{- range .Commands }}
+
+# -----------------------------------
+# uss completion wrapper for {{ .Name }}
+# -----------------------------------
+if [[ -z "$COMPLETION_USS_{{ .NameUpper }}_FUNC" ]]; then
+  COMPLETION_USS_{{ .NameUpper }}_FUNC=$_comps[{{ .Name }}]
+fi
+
+_completion_uss_{{ .Name }}() {
+  local word_len=${#words[@]}
+  local last_word="${words[$word_len]}"
+  local last_word_trim="$(_completion_remove_quote "$last_word")"
+
+  if [[ "$last_word_trim" == "uss"* ]]; then
+    local -a results
+    results=("${(@f)$(GO_FLAGS_COMPLETE_URI=1 GO_FLAGS_SHELL=zsh uss "$last_word")}")
+    local -a ns_items regular_items
+    for item in "${results[@]}"; do
+        if [[ "$item" == *"<NS>" ]]; then
+            ns_items+=("${item%<NS>}")
+        else
+            regular_items+=("$item")
+        fi
+    done
+    (( ${#ns_items} > 0 )) && compadd -S '' -Q -a ns_items
+    (( ${#regular_items} > 0 )) && compadd -Q -a regular_items
+  else
+    # call the underlying completion
+    $COMPLETION_USS_{{ .NameUpper }}_FUNC
+  fi
+}
+
+compdef _completion_uss_{{ .Name }} {{ .Name }}
+{{- end }}
