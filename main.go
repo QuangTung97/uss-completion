@@ -8,7 +8,7 @@ import (
 
 	"github.com/jessevdk/go-flags"
 
-	"learn-go-flags/completion"
+	"uss-completion/completion"
 )
 
 type BaseOptions struct {

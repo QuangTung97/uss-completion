@@ -1,4 +1,4 @@
-module learn-go-flags
+module uss-completion
 
 go 1.22.2
 
