@@ -44,6 +44,9 @@ type uriValueTest struct {
 	fileMatchInput string
 	fileMatchCalls int
 	fileList       []string
+
+	matchDatasetInputs  []string
+	matchDatasetOutputs []string
 }
 
 func newUriValueTest(t *testing.T) *uriValueTest {
@@ -51,6 +54,16 @@ func newUriValueTest(t *testing.T) *uriValueTest {
 
 	v := &uriValueTest{}
 
+	// stub get dataset names
+	GetMatchDatasetNamesFunc = func(match string) []string {
+		v.matchDatasetInputs = append(v.matchDatasetInputs, match)
+		return v.matchDatasetOutputs
+	}
+	t.Cleanup(func() {
+		GetMatchDatasetNamesFunc = getMatchDatasetNamesTest
+	})
+
+	// stub get files
 	prevFunc := globalListFilesByPatternFunc
 	globalListFilesByPatternFunc = func(dir string, match string) []string {
 		v.fileMatchDir = dir
@@ -107,21 +120,6 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		// check input
 		assert.Equal(t, "", v.fileMatchInput)
 		assert.Equal(t, 1, v.fileMatchCalls)
-	})
-
-	t.Run("with dataset name, and no quote", func(t *testing.T) {
-		v := newUriValueTest(t)
-
-		assert.Equal(
-			t,
-			[]string{
-				`"uss://test01`,
-			},
-			v.completeUriAndFile(`uss://test01`),
-		)
-
-		// check input
-		assert.Equal(t, 0, v.fileMatchCalls)
 	})
 
 	t.Run("with match filename", func(t *testing.T) {
@@ -322,6 +320,26 @@ func TestUri_Complete(t *testing.T) {
 		// check input
 		assert.Equal(t, "", v.fileMatchInput)
 	})
+
+	t.Run("dataset name completion", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		v.matchDatasetOutputs = []string{
+			"dataset01",
+			"dataset02",
+		}
+
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://dataset01{<NS>`,
+				`"uss://dataset02{<NS>`,
+			},
+			v.completeUriAndFile(`"uss://data`),
+		)
+
+		assert.Equal(t, []string{"data"}, v.matchDatasetInputs)
+	})
 }
 
 func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
@@ -424,9 +442,7 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 		v := newTest(t)
 		assert.Equal(
 			t,
-			[]string{
-				`uss://hello`,
-			},
+			[]string{},
 			v.completeUriAndFile(`uss://hello`),
 		)
 	})

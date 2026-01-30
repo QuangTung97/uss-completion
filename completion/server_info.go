@@ -22,3 +22,13 @@ func getUriDiskPathTest(_ string) string {
 }
 
 var GetUriDiskPathFunc = getUriDiskPathTest
+
+func getMatchDatasetNamesTest(_ string) []string {
+	return []string{
+		"hello01",
+		"tung",
+		"sample",
+	}
+}
+
+var GetMatchDatasetNamesFunc = getMatchDatasetNamesTest

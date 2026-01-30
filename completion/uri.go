@@ -109,15 +109,21 @@ func coreHandleComplete(
 	openIndex := strings.Index(match, "{")
 	closeIndex := strings.Index(match, "}")
 
-	var resultWithOpenQuote []flags.Completion
-	if !quote.withOpenQuote {
-		resultWithOpenQuote = append(resultWithOpenQuote, flags.Completion{
-			Item: quote.getQuoteChar() + match,
-		})
-	}
-
 	if openIndex <= 0 {
-		return resultWithOpenQuote
+		matchDatasetName := match[len(ussPrefix):]
+		datasetNames := GetMatchDatasetNamesFunc(matchDatasetName)
+
+		prefix := quote.getQuoteChar() + ussPrefix
+
+		var result []flags.Completion
+		for _, name := range datasetNames {
+			if strings.HasPrefix(name, matchDatasetName) {
+				result = append(result, flags.Completion{
+					Item: prefix + name + "{" + NoSpace,
+				})
+			}
+		}
+		return result
 	}
 
 	beforeBracketPart := match[:openIndex+1]
@@ -128,7 +134,7 @@ func coreHandleComplete(
 	if closeIndex <= 0 {
 		prefix := quote.getQuoteChar() + beforeBracketPart
 		attrsStr := match[openIndex+1:]
-		return handleAttrComplete(quote, prefix, attrsStr, quote.withOpenQuote)
+		return handleAttrComplete(quote, prefix, attrsStr)
 	}
 
 	prefix := quote.getQuoteChar() + match[:closeIndex+1] + quote.getQuoteChar()
@@ -180,8 +186,7 @@ func coreHandleComplete(
 }
 
 func handleAttrComplete(
-	quote *QuoteHandler,
-	prefix string, attrsStr string, withOpenQuote bool,
+	quote *QuoteHandler, prefix string, attrsStr string,
 ) []flags.Completion {
 	attrsStr = strings.TrimSpace(attrsStr)
 
@@ -190,7 +195,7 @@ func handleAttrComplete(
 	existedKeys := map[string]struct{}{}
 	if lastCommaIndex >= 0 {
 		lastAttr = strings.TrimSpace(attrsStr[lastCommaIndex+1:])
-		if !IsZshShellFunc() || withOpenQuote {
+		if !IsZshShellFunc() || quote.withOpenQuote {
 			prefix = prefix + attrsStr[:lastCommaIndex+1]
 		}
 
