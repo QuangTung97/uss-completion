@@ -4,6 +4,15 @@ _get_completion_func() {
   local function_name=${defs[$defs_len - 2]}
   echo $function_name
 }
+
+_completion_remove_quote() {
+  local input="$1"
+  if [[ "$input" == \"* ]]; then
+    echo "${input#\"}"
+  else
+    echo "${input#\'}"
+  fi
+}
 {{- range .Commands }}
 
 # -----------------------------------
@@ -16,7 +25,7 @@ fi
 _completion_uss_{{ .Name }}() {
   local word_len=${#COMP_WORDS[@]}
   local last_word="${COMP_WORDS[$word_len - 1]}"
-  local last_word_trim=${last_word#"\""}
+  local last_word_trim="$(_completion_remove_quote "$last_word")"
 
   if [[ "$last_word_trim" == "uss"* ]]; then
     local IFS=$'\n'

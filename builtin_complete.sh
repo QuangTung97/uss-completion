@@ -5,6 +5,15 @@ _get_completion_func() {
   echo $function_name
 }
 
+_completion_remove_quote() {
+  local input="$1"
+  if [[ "$input" == \"* ]]; then
+    echo "${input#\"}"
+  else
+    echo "${input#\'}"
+  fi
+}
+
 # -----------------------------------
 # uss completion wrapper for cd
 # -----------------------------------
@@ -15,7 +24,7 @@ fi
 _completion_uss_cd() {
   local word_len=${#COMP_WORDS[@]}
   local last_word="${COMP_WORDS[$word_len - 1]}"
-  local last_word_trim=${last_word#"\""}
+  local last_word_trim="$(_completion_remove_quote "$last_word")"
 
   if [[ "$last_word_trim" == "uss"* ]]; then
     local IFS=$'\n'
@@ -39,7 +48,7 @@ fi
 _completion_uss_cat() {
   local word_len=${#COMP_WORDS[@]}
   local last_word="${COMP_WORDS[$word_len - 1]}"
-  local last_word_trim=${last_word#"\""}
+  local last_word_trim="$(_completion_remove_quote "$last_word")"
 
   if [[ "$last_word_trim" == "uss"* ]]; then
     local IFS=$'\n'
@@ -63,7 +72,7 @@ fi
 _completion_uss_ls() {
   local word_len=${#COMP_WORDS[@]}
   local last_word="${COMP_WORDS[$word_len - 1]}"
-  local last_word_trim=${last_word#"\""}
+  local last_word_trim="$(_completion_remove_quote "$last_word")"
 
   if [[ "$last_word_trim" == "uss"* ]]; then
     local IFS=$'\n'
