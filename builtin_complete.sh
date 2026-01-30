@@ -8,7 +8,6 @@ _get_completion_func() {
 # -----------------------------------
 # uss completion wrapper for cd
 # -----------------------------------
-
 COMPLETION_USS_CD_FUNC=$(_get_completion_func cd)
 
 _completion_uss_cd() {
@@ -18,6 +17,7 @@ _completion_uss_cd() {
 
   if [[ "$last_word_trim" == "uss"* ]]; then
     local IFS=$'\n'
+    
     COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
   else
     # call the underlying completion
@@ -32,7 +32,6 @@ fi
 # -----------------------------------
 # uss completion wrapper for cat
 # -----------------------------------
-
 COMPLETION_USS_CAT_FUNC=$(_get_completion_func cat)
 
 _completion_uss_cat() {
@@ -52,4 +51,28 @@ _completion_uss_cat() {
 
 if [[ "$COMPLETION_USS_CAT_FUNC" != "_completion_uss_cat" ]]; then
   complete -F _completion_uss_cat cat
+fi
+
+# -----------------------------------
+# uss completion wrapper for ls
+# -----------------------------------
+COMPLETION_USS_LS_FUNC=$(_get_completion_func ls)
+
+_completion_uss_ls() {
+  local word_len=${#COMP_WORDS[@]}
+  local last_word="${COMP_WORDS[$word_len - 1]}"
+  local last_word_trim=${last_word#"\""}
+
+  if [[ "$last_word_trim" == "uss"* ]]; then
+    local IFS=$'\n'
+    compopt -o nospace
+    COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
+  else
+    # call the underlying completion
+    $COMPLETION_USS_LS_FUNC
+  fi
+}
+
+if [[ "$COMPLETION_USS_LS_FUNC" != "_completion_uss_ls" ]]; then
+  complete -F _completion_uss_ls ls
 fi
