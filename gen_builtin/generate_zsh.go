@@ -28,18 +28,9 @@ func GenerateZshBuiltinCompletionScript(
 
 	data := templateData{}
 	for _, cmd := range cmdList {
-		configOption := ""
-		setOption := "compopt -o nospace"
-		if cmd.NoSpace {
-			configOption = " -o nospace"
-			setOption = ""
-		}
-
 		data.Commands = append(data.Commands, commandData{
-			Name:         cmd.Name,
-			NameUpper:    strings.ToUpper(cmd.Name),
-			SetOption:    setOption,
-			ConfigOption: configOption,
+			Name:      cmd.Name,
+			NameUpper: strings.ToUpper(cmd.Name),
 		})
 	}
 
