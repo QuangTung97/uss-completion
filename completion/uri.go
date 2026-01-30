@@ -166,6 +166,9 @@ func coreHandleComplete(
 	}
 
 	remainMatch := match[closeIndex+1:]
+	uriString := match[:closeIndex+1]
+	searchPath := filepath.Join(GetUriDiskPathFunc(uriString), remainMatch)
+
 	var result []flags.Completion
 
 	// add no file suffix
@@ -173,7 +176,7 @@ func coreHandleComplete(
 		result = append(result, flags.Completion{
 			Item: prefix,
 		})
-		for _, fileMatch := range globalListFilesByPatternFunc(remainMatch) {
+		for _, fileMatch := range globalListFilesByPatternFunc(searchPath) {
 			result = append(result, flags.Completion{
 				Item: prefix + "/" + fileMatch,
 			})
@@ -187,8 +190,9 @@ func coreHandleComplete(
 
 	// remove prefix
 	remainMatch = remainMatch[1:]
+	searchPath = filepath.Join(GetUriDiskPathFunc(uriString), remainMatch)
 
-	for _, fileMatch := range globalListFilesByPatternFunc(remainMatch) {
+	for _, fileMatch := range globalListFilesByPatternFunc(searchPath) {
 		if !strings.HasPrefix(fileMatch, remainMatch) {
 			continue
 		}
@@ -229,14 +233,23 @@ func handleAttrComplete(
 		"date": {
 			"date=",
 		},
-		"asset_type": {
-			"asset_type=equity",
-			"asset_type=options",
-		},
 	}
-	keyList := []string{
-		"date",
-		"asset_type",
+
+	keyList := []string{"date"}
+	keySet := map[string]struct{}{
+		"date": {},
+	}
+
+	versionList := GetAllVersionsFunc()
+	for _, version := range versionList.Versions {
+		for key, val := range version {
+			allMatches[key] = append(allMatches[key], key+"="+val)
+			_, existed := keySet[key]
+			if !existed {
+				keyList = append(keyList, key)
+				keySet[key] = struct{}{}
+			}
+		}
 	}
 
 	var result []flags.Completion
