@@ -12,10 +12,9 @@ _completion_uss_cd() {
   local last_word="${COMP_WORDS[$word_len - 1]}"
   local last_word_trim=${last_word#"\""}
 
-  echo "WORD:" $last_word_trim >> log.txt
-
   if [[ "$last_word_trim" == "uss"* ]]; then
-    GO_FLAGS_COMPLETE_URI=1 uss "$last_word"
+    local IFS=$'\n'
+    COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
   else
     # call the underlying completion
     $COMPLETION_CD_FUNC
