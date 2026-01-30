@@ -1,4 +1,4 @@
-package builtin_gen
+package gen_builtin
 
 import (
 	"os"

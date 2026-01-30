@@ -9,7 +9,9 @@ _get_completion_func() {
 # -----------------------------------
 # uss completion wrapper for {{ .Name }}
 # -----------------------------------
-COMPLETION_USS_{{ .NameUpper }}_FUNC=$(_get_completion_func {{ .Name }})
+if [[ -z "$COMPLETION_USS_{{ .NameUpper }}_FUNC" ]]; then
+  COMPLETION_USS_{{ .NameUpper }}_FUNC=$(_get_completion_func {{ .Name }})
+fi
 
 _completion_uss_{{ .Name }}() {
   local word_len=${#COMP_WORDS[@]}
@@ -26,8 +28,5 @@ _completion_uss_{{ .Name }}() {
   fi
 }
 
-if [[ "$COMPLETION_USS_{{ .NameUpper }}_FUNC" != "_completion_uss_{{ .Name }}" ]]; then
-  complete{{ .ConfigOption }} -F _completion_uss_{{ .Name }} {{ .Name }}
-fi
-
+complete{{ .ConfigOption }} -F _completion_uss_{{ .Name }} {{ .Name }}
 {{- end }}
