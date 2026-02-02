@@ -15,7 +15,7 @@ var EnableLogging atomic.Bool
 func PrintCompletionList(items []flags.Completion) {
 	if IsZshShellFunc() {
 		for _, v := range items {
-			fmt.Println(v.Item + ":" + v.Description)
+			fmt.Println(v.Item)
 		}
 		os.Exit(0)
 	}
