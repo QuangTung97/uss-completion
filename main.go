@@ -41,7 +41,7 @@ func (cmd *SubCommand) Execute(args []string) error {
 
 type VolumeCmd struct {
 	Args struct {
-		File completion.Filename `positional-arg-name:"<file>" description:"file name"`
+		Files []completion.Filename `positional-arg-name:"<file>" description:"file name"`
 	} `positional-args:"yes" required:"yes"`
 }
 
