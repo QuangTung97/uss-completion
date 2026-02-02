@@ -37,10 +37,6 @@ func WriteToLog(format string, args ...any) {
 		return
 	}
 
-	if os.Getenv("GO_TEST") != "" {
-		return
-	}
-
 	file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)

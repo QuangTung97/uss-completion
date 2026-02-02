@@ -134,7 +134,8 @@ func coreHandleComplete(
 	if closeIndex <= 0 {
 		prefix := quote.getQuoteChar() + beforeBracketPart
 		attrsStr := match[openIndex+1:]
-		return handleAttrComplete(quote, prefix, attrsStr)
+		datasetName := match[len(ussPrefix):openIndex]
+		return handleAttrComplete(quote, prefix, datasetName, attrsStr)
 	}
 
 	prefix := quote.getQuoteChar() + match[:closeIndex+1] + quote.getQuoteChar()
@@ -189,7 +190,7 @@ func coreHandleComplete(
 }
 
 func handleAttrComplete(
-	quote *QuoteHandler, prefix string, attrsStr string,
+	quote *QuoteHandler, prefix string, datasetName string, attrsStr string,
 ) []flags.Completion {
 	attrsStr = strings.TrimSpace(attrsStr)
 
@@ -224,7 +225,7 @@ func handleAttrComplete(
 		"date": {},
 	}
 
-	versionList := GetAllVersionsFunc()
+	versionList := GetAllVersionsFunc(datasetName)
 	for _, version := range versionList.Versions {
 		for key, val := range version {
 			allMatches[key] = append(allMatches[key], key+"="+val)

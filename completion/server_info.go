@@ -6,7 +6,7 @@ type VersionList struct {
 	Versions []VersionAttr
 }
 
-func getAllVersionsTest() VersionList {
+func getAllVersionsTest(_ string) VersionList {
 	return VersionList{
 		Versions: []VersionAttr{
 			{"asset_type": "equity"},

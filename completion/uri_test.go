@@ -1,7 +1,6 @@
 package completion
 
 import (
-	"os"
 	"testing"
 
 	"github.com/jessevdk/go-flags"
@@ -9,8 +8,6 @@ import (
 )
 
 func TestUriAndFile_Complete__Basic(t *testing.T) {
-	_ = os.Setenv("GO_TEST", "1")
-
 	t.Run("empty", func(t *testing.T) {
 		v := UriAndFile("")
 		assert.Equal(t, []flags.Completion{
@@ -47,11 +44,11 @@ type uriValueTest struct {
 
 	matchDatasetInputs  []string
 	matchDatasetOutputs []string
+
+	listVersionNames []string
 }
 
 func newUriValueTest(t *testing.T) *uriValueTest {
-	_ = os.Setenv("GO_TEST", "1")
-
 	v := &uriValueTest{}
 
 	// stub get dataset names
@@ -80,6 +77,15 @@ func newUriValueTest(t *testing.T) *uriValueTest {
 	}
 	t.Cleanup(func() {
 		GetUriDiskPathFunc = getUriDiskPathTest
+	})
+
+	// stub get versions
+	GetAllVersionsFunc = func(dsName string) VersionList {
+		v.listVersionNames = append(v.listVersionNames, dsName)
+		return getAllVersionsTest(dsName)
+	}
+	t.Cleanup(func() {
+		GetAllVersionsFunc = getAllVersionsTest
 	})
 
 	return v
@@ -280,6 +286,8 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 			v.completeUriAndFile(`"uss://test01{asset_type=e`),
 		)
 		assert.Equal(t, 0, v.fileMatchCalls)
+		// check list versions input
+		assert.Equal(t, []string{"test01"}, v.listVersionNames)
 	})
 
 	t.Run("attr completion with full attr value", func(t *testing.T) {
