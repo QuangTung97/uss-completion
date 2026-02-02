@@ -151,6 +151,9 @@ func coreHandleComplete(
 	remainMatch := match[closeIndex+1:]
 	uriString := match[:closeIndex+1]
 	searchDir := GetUriDiskPathFunc(uriString)
+	if searchDir == NullDir {
+		return nil
+	}
 
 	var result []flags.Completion
 

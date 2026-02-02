@@ -64,7 +64,6 @@ func newUriValueTest(t *testing.T) *uriValueTest {
 	})
 
 	// stub get files
-	prevFunc := globalListFilesByPatternFunc
 	globalListFilesByPatternFunc = func(dir string, match string) []string {
 		v.fileMatchDir = dir
 		v.fileMatchInput = match
@@ -72,7 +71,15 @@ func newUriValueTest(t *testing.T) *uriValueTest {
 		return v.fileList
 	}
 	t.Cleanup(func() {
-		globalListFilesByPatternFunc = prevFunc
+		globalListFilesByPatternFunc = listFilesByPattern
+	})
+
+	// stub get uri path
+	GetUriDiskPathFunc = func(_ string) string {
+		return "uss_storage"
+	}
+	t.Cleanup(func() {
+		GetUriDiskPathFunc = getUriDiskPathTest
 	})
 
 	return v
@@ -490,5 +497,22 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 			},
 			v.completeUriAndFile(`'uss`),
 		)
+	})
+
+	t.Run("with get uri path return null dir", func(t *testing.T) {
+		v := newTest(t)
+
+		GetUriDiskPathFunc = func(_ string) string {
+			return NullDir
+		}
+
+		assert.Equal(
+			t,
+			[]string{},
+			v.completeUriAndFile(`'uss://hello{date=20250912}`),
+		)
+
+		assert.Equal(t, 0, v.fileMatchCalls)
+		assert.Equal(t, "", v.fileMatchDir)
 	})
 }

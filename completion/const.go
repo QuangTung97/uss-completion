@@ -5,4 +5,6 @@ const (
 
 	BlackBullet = "•"
 	WhiteBullet = "◦"
+
+	NullDir = "<null-dir>"
 )
