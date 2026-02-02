@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/jessevdk/go-flags"
 
@@ -46,26 +45,6 @@ type VolumeCmd struct {
 	} `positional-args:"yes" required:"yes"`
 }
 
-func printCompletionList(items []flags.Completion) {
-	if completion.IsZshShellFunc() {
-		for _, v := range items {
-			fmt.Println(v.Item)
-		}
-		os.Exit(0)
-	}
-
-	// normal bash shell
-	for _, v := range items {
-		if strings.HasSuffix(v.Item, completion.NoSpace) {
-			v.Item = strings.TrimSuffix(v.Item, completion.NoSpace)
-			fmt.Println(v.Item)
-		} else {
-			fmt.Println(v.Item + " ") // add space to the end
-		}
-	}
-	os.Exit(0)
-}
-
 func main() {
 	normalMain()
 	// simpleCompletion()
@@ -76,13 +55,15 @@ func simpleCompletion() {
 }
 
 func normalMain() {
+	completion.EnableLogging.Store(true)
+
 	if os.Getenv("GO_FLAGS_COMPLETE_URI") != "" {
 		completeURIFromArgs()
 		return
 	}
 
 	parser := flags.NewParser(&rootCmd, flags.Default)
-	parser.CompletionHandler = printCompletionList
+	parser.CompletionHandler = completion.PrintCompletionList
 
 	_, err := parser.Parse()
 	if err != nil {
@@ -103,5 +84,5 @@ func completeURIFromArgs() {
 
 	var empty completion.UriAndFile
 	items := empty.Complete(uri)
-	printCompletionList(items)
+	completion.PrintCompletionList(items)
 }

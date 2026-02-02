@@ -340,6 +340,16 @@ func TestUri_Complete(t *testing.T) {
 
 		assert.Equal(t, []string{"data"}, v.matchDatasetInputs)
 	})
+
+	t.Run("prefix is not uss", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		assert.Equal(
+			t,
+			[]string{},
+			v.completeUriAndFile(`"ss://data`),
+		)
+	})
 }
 
 func TestUriAndFile_Complete__With_Zsh(t *testing.T) {

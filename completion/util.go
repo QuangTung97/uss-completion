@@ -4,9 +4,39 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
+	"sync/atomic"
+
+	"github.com/jessevdk/go-flags"
 )
 
+var EnableLogging atomic.Bool
+
+func PrintCompletionList(items []flags.Completion) {
+	if IsZshShellFunc() {
+		for _, v := range items {
+			fmt.Println(v.Item + ":" + v.Description)
+		}
+		os.Exit(0)
+	}
+
+	// normal bash shell
+	for _, v := range items {
+		if strings.HasSuffix(v.Item, NoSpace) {
+			v.Item = strings.TrimSuffix(v.Item, NoSpace)
+			fmt.Println(v.Item)
+		} else {
+			fmt.Println(v.Item + " ") // add space to the end
+		}
+	}
+	os.Exit(0)
+}
+
 func WriteToLog(format string, args ...any) {
+	if !EnableLogging.Load() {
+		return
+	}
+
 	if os.Getenv("GO_TEST") != "" {
 		return
 	}
