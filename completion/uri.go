@@ -159,10 +159,10 @@ func coreHandleComplete(
 	remainMatch := match[closeIndex+1:]
 	uriString := match[:closeIndex+1]
 	searchDir := GetUriDiskPathFunc(uriString)
-	var result []flags.Completion
 
 	// add no file suffix
 	if len(remainMatch) == 0 {
+		var result []flags.Completion
 		result = append(result, flags.Completion{
 			Item: prefix,
 		})
@@ -170,6 +170,9 @@ func coreHandleComplete(
 			result = append(result, flags.Completion{
 				Item: prefix + "/" + fileMatch,
 			})
+		}
+		if len(result) == 1 {
+			result[0].Item += NoSpace
 		}
 		return result
 	}
@@ -181,6 +184,7 @@ func coreHandleComplete(
 	// remove prefix
 	remainMatch = remainMatch[1:]
 
+	var result []flags.Completion
 	for _, fileMatch := range searchFilesWithNullDir(searchDir, remainMatch) {
 		if !strings.HasPrefix(fileMatch, remainMatch) {
 			continue

@@ -480,7 +480,7 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 		assert.Equal(
 			t,
 			[]string{
-				`uss://hello{asset_type=equity,date=20250102}`,
+				`uss://hello{asset_type=equity,date=20250102}<NS>`,
 			},
 			v.completeUriAndFile(`"uss://hello{asset_type=equity,date=20250102}`),
 		)
@@ -557,7 +557,7 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 		assert.Equal(
 			t,
 			[]string{
-				`uss://hello{date=20250912}`,
+				`uss://hello{date=20250912}<NS>`,
 			},
 			v.completeUriAndFile(`'uss://hello{date=20250912}`),
 		)
