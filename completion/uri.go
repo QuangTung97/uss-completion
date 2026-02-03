@@ -152,7 +152,7 @@ func coreHandleComplete(
 
 	if !withFile {
 		return []flags.Completion{
-			{Item: prefix},
+			{Item: prefix + NoSpace},
 		}
 	}
 

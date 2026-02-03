@@ -333,7 +333,7 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 }
 
 func TestUri_Complete(t *testing.T) {
-	t.Run("normal", func(t *testing.T) {
+	t.Run("match exact", func(t *testing.T) {
 		v := newUriValueTest(t)
 
 		// not consider
@@ -344,9 +344,7 @@ func TestUri_Complete(t *testing.T) {
 
 		assert.Equal(
 			t,
-			[]string{
-				`"uss://test01{date=20250219,asset_type=at}"`,
-			},
+			[]string{},
 			v.completeUri(`"uss://test01{date=20250219,asset_type=at}"`),
 		)
 
@@ -403,6 +401,19 @@ func TestUri_Complete(t *testing.T) {
 			t,
 			[]string{},
 			v.completeUriAndFile(`"ss://data`),
+		)
+	})
+
+	t.Run("all attrs, complete bracket", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://dataset01{date=20260109,asset_type=equity}"` + BlackBullet + NoSpace,
+				`"uss://dataset01{date=20260109,asset_type=equity}"` + WhiteBullet + NoSpace,
+			},
+			v.completeUriAndFile(`"uss://dataset01{date=20260109,asset_type=equity`),
 		)
 	})
 }
