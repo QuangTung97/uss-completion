@@ -15,12 +15,18 @@ func isZshShell() bool {
 
 var IsZshShellFunc = isZshShell
 
+// ------------------------------
+
 type Uri string
 
 var _ flags.Completer = Uri("")
 
 func (Uri) Complete(match string) (output []flags.Completion) {
 	return handleComplete(match, false)
+}
+
+func (u Uri) String() string {
+	return string(u)
 }
 
 // ------------------------------
@@ -32,6 +38,32 @@ var _ flags.Completer = UriAndFile("")
 func (UriAndFile) Complete(match string) (output []flags.Completion) {
 	return handleComplete(match, true)
 }
+
+func (u UriAndFile) String() string {
+	return string(u)
+}
+
+// ------------------------------
+
+type FileOrUri string
+
+var _ flags.Completer = FileOrUri("")
+
+func (FileOrUri) Complete(match string) (output []flags.Completion) {
+	var empty Filename
+	fileItems := empty.Complete(match)
+
+	uriItems := handleComplete(match, true)
+	fileItems = append(fileItems, uriItems...)
+
+	return fileItems
+}
+
+func (u FileOrUri) String() string {
+	return string(u)
+}
+
+// ------------------------------
 
 func handleComplete(match string, withFile bool) (output []flags.Completion) {
 	WriteToLog("Match: '%s'\n", match)

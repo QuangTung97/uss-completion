@@ -20,6 +20,7 @@ type RootCommand struct {
 
 	Sub    SubCommand `command:"sub" description:"sub command"`
 	Volume VolumeCmd  `command:"vol" description:"volume command"`
+	List   ListCmd    `command:"ls" description:"list command"`
 }
 
 var rootCmd RootCommand
@@ -42,6 +43,12 @@ func (cmd *SubCommand) Execute(args []string) error {
 type VolumeCmd struct {
 	Args struct {
 		Files []completion.Filename `positional-arg-name:"<file>" description:"file name"`
+	} `positional-args:"yes" required:"yes"`
+}
+
+type ListCmd struct {
+	Args struct {
+		URI completion.FileOrUri `positional-arg-name:"<uri>" description:"uss URI string"`
 	} `positional-args:"yes" required:"yes"`
 }
 

@@ -20,6 +20,10 @@ func (Filename) Complete(match string) (output []flags.Completion) {
 	return result
 }
 
+func (n Filename) String() string {
+	return string(n)
+}
+
 // ======================================================
 
 func computeSearchWildcard(dir, match string) string {
