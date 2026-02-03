@@ -313,6 +313,23 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		)
 		assert.Equal(t, 0, v.fileMatchCalls)
 	})
+
+	t.Run("disable attr completion", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		GetAllVersionsFunc = func(_ string) VersionList {
+			return VersionList{
+				DisableCompletion: true,
+			}
+		}
+
+		assert.Equal(
+			t,
+			[]string{},
+			v.completeUriAndFile(`"uss://test01{`),
+		)
+		assert.Equal(t, 0, v.fileMatchCalls)
+	})
 }
 
 func TestUri_Complete(t *testing.T) {

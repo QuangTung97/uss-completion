@@ -236,6 +236,10 @@ func handleAttrComplete(
 	}
 
 	versionList := GetAllVersionsFunc(datasetName)
+	if versionList.DisableCompletion {
+		return nil
+	}
+
 	for _, version := range versionList.Versions {
 		for key, val := range version {
 			allMatches[key] = append(allMatches[key], key+"="+val)

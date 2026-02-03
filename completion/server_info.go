@@ -3,7 +3,8 @@ package completion
 type VersionAttr = map[string]string
 
 type VersionList struct {
-	Versions []VersionAttr
+	Versions          []VersionAttr
+	DisableCompletion bool
 }
 
 func getAllVersionsTest(_ string) VersionList {
