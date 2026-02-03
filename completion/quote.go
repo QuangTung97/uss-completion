@@ -2,9 +2,16 @@ package completion
 
 import "strings"
 
+const (
+	ussPrefixConst  = "uss://"
+	ussPrefixWithAt = "@" + ussPrefixConst
+)
+
 type QuoteHandler struct {
 	withOpenQuote bool
 	quoteCh       string
+
+	prefixWithAt bool
 }
 
 func (h *QuoteHandler) getQuoteChar() string {
@@ -32,4 +39,41 @@ func (h *QuoteHandler) removeQuoted(match string) string {
 		return match
 	}
 	return match[:closeIndex] + match[closeIndex+1:]
+}
+
+func (h *QuoteHandler) equalUssPrefix(match string) bool {
+	if match == ussPrefixConst {
+		return true
+	}
+	if match == ussPrefixWithAt {
+		h.prefixWithAt = true
+		return true
+	}
+	return false
+}
+
+func (h *QuoteHandler) isPrefixOfUss(match string) bool {
+	if strings.HasPrefix(ussPrefixConst, match) {
+		return true
+	}
+	// TODO
+	return false
+}
+
+func (h *QuoteHandler) getUssPrefix() string {
+	if h.prefixWithAt {
+		return ussPrefixWithAt
+	}
+	return ussPrefixConst
+}
+
+func (h *QuoteHandler) hasUssPrefix(match string) bool {
+	if strings.HasPrefix(match, ussPrefixConst) {
+		return true
+	}
+	if strings.HasPrefix(match, ussPrefixWithAt) {
+		h.prefixWithAt = true
+		return true
+	}
+	return false
 }

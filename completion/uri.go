@@ -7,8 +7,6 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
-const ussPrefix = "uss://"
-
 func isZshShell() bool {
 	return os.Getenv("GO_FLAGS_SHELL") == "zsh"
 }
@@ -75,7 +73,7 @@ func handleComplete(match string, withFile bool) (output []flags.Completion) {
 
 	if len(match) == 0 {
 		return []flags.Completion{
-			{Item: quote.getQuoteChar() + ussPrefix + NoSpace},
+			{Item: quote.getQuoteChar() + quote.getUssPrefix() + NoSpace},
 		}
 	}
 
@@ -123,24 +121,25 @@ func coreHandleComplete(
 	quote *QuoteHandler, match string, withFile bool,
 ) []flags.Completion {
 	match = quote.removeQuoted(match)
-	if match == ussPrefix {
+	if quote.equalUssPrefix(match) {
 		return nil
 	}
 
 	// match is prefix
-	if strings.HasPrefix(ussPrefix, match) {
+	if quote.isPrefixOfUss(match) {
 		return []flags.Completion{
-			{Item: quote.getQuoteChar() + ussPrefix + NoSpace},
+			{Item: quote.getQuoteChar() + quote.getUssPrefix() + NoSpace},
 		}
 	}
 
-	if !strings.HasPrefix(match, ussPrefix) {
+	if !quote.hasUssPrefix(match) {
 		return nil
 	}
 
 	openIndex := strings.Index(match, "{")
 	closeIndex := strings.Index(match, "}")
 
+	ussPrefix := quote.getUssPrefix()
 	if openIndex <= 0 {
 		matchDatasetName := match[len(ussPrefix):]
 		datasetNames := GetMatchDatasetNamesFunc(matchDatasetName)

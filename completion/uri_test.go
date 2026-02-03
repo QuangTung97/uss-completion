@@ -35,6 +35,11 @@ func TestUriAndFile_Complete__Basic(t *testing.T) {
 		v := UriAndFile("")
 		assert.Equal(t, []flags.Completion(nil), v.Complete(`"uss://`))
 	})
+
+	t.Run("with full prefix and @", func(t *testing.T) {
+		v := UriAndFile("")
+		assert.Equal(t, []flags.Completion(nil), v.Complete(`"@uss://`))
+	})
 }
 
 type uriValueTest struct {
@@ -330,6 +335,29 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		)
 		assert.Equal(t, 0, v.fileMatchCalls)
 	})
+
+	t.Run("normal with @", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		v.fileList = []string{
+			"file01",
+			"file02",
+		}
+
+		assert.Equal(
+			t,
+			[]string{
+				`"@uss://test01{date=20250219,asset_type=at}"`,
+				`"@uss://test01{date=20250219,asset_type=at}"/file01`,
+				`"@uss://test01{date=20250219,asset_type=at}"/file02`,
+			},
+			v.completeUriAndFile(`"@uss://test01{date=20250219,asset_type=at}"`),
+		)
+
+		// check input
+		assert.Equal(t, "", v.fileMatchInput)
+		assert.Equal(t, 1, v.fileMatchCalls)
+	})
 }
 
 func TestUri_Complete(t *testing.T) {
@@ -415,6 +443,26 @@ func TestUri_Complete(t *testing.T) {
 			},
 			v.completeUriAndFile(`"uss://dataset01{date=20260109,asset_type=equity`),
 		)
+	})
+
+	t.Run("dataset name completion, with @", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		v.matchDatasetOutputs = []string{
+			"dataset01",
+			"dataset02",
+		}
+
+		assert.Equal(
+			t,
+			[]string{
+				`"@uss://dataset01{<NS>`,
+				`"@uss://dataset02{<NS>`,
+			},
+			v.completeUriAndFile(`"@uss://data`),
+		)
+
+		assert.Equal(t, []string{"data"}, v.matchDatasetInputs)
 	})
 }
 
