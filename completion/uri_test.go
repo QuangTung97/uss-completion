@@ -1,6 +1,7 @@
 package completion
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/jessevdk/go-flags"
@@ -350,6 +351,28 @@ func TestUri_Complete(t *testing.T) {
 				`"uss://dataset01{<NS>`,
 				`"uss://dataset02{<NS>`,
 			},
+			v.completeUriAndFile(`"uss://data`),
+		)
+
+		assert.Equal(t, []string{"data"}, v.matchDatasetInputs)
+	})
+
+	t.Run("dataset name completion, reach limit 20", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		for i := range 20 {
+			v.matchDatasetOutputs = append(v.matchDatasetOutputs, fmt.Sprintf("dataset%02d", i+1))
+		}
+
+		var expected []string
+		for i := range 20 {
+			expected = append(expected, fmt.Sprintf(`"uss://dataset%02d{<NS>`, i+1))
+		}
+		expected = append(expected, `"uss://<NS>`)
+
+		assert.Equal(
+			t,
+			expected,
 			v.completeUriAndFile(`"uss://data`),
 		)
 

@@ -123,6 +123,13 @@ func coreHandleComplete(
 				})
 			}
 		}
+
+		if len(datasetNames) >= 20 {
+			result = append(result, flags.Completion{
+				Item: prefix + NoSpace,
+			})
+		}
+
 		return result
 	}
 
