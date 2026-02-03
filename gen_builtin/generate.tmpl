@@ -23,8 +23,7 @@ if [[ -z "$COMPLETION_USS_{{ .NameUpper }}_FUNC" ]]; then
 fi
 
 _completion_uss_{{ .Name }}() {
-  local word_len=${#COMP_WORDS[@]}
-  local last_word="${COMP_WORDS[$word_len - 1]}"
+  local last_word="${COMP_WORDS[$COMP_CWORD]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
   if [[ "$last_word_trim" == "uss"* ]]; then

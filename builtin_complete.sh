@@ -22,8 +22,7 @@ if [[ -z "$COMPLETION_USS_CD_FUNC" ]]; then
 fi
 
 _completion_uss_cd() {
-  local word_len=${#COMP_WORDS[@]}
-  local last_word="${COMP_WORDS[$word_len - 1]}"
+  local last_word="${COMP_WORDS[$COMP_CWORD]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
   if [[ "$last_word_trim" == "uss"* ]]; then
@@ -46,8 +45,7 @@ if [[ -z "$COMPLETION_USS_CAT_FUNC" ]]; then
 fi
 
 _completion_uss_cat() {
-  local word_len=${#COMP_WORDS[@]}
-  local last_word="${COMP_WORDS[$word_len - 1]}"
+  local last_word="${COMP_WORDS[$COMP_CWORD]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
   if [[ "$last_word_trim" == "uss"* ]]; then
@@ -70,8 +68,7 @@ if [[ -z "$COMPLETION_USS_LS_FUNC" ]]; then
 fi
 
 _completion_uss_ls() {
-  local word_len=${#COMP_WORDS[@]}
-  local last_word="${COMP_WORDS[$word_len - 1]}"
+  local last_word="${COMP_WORDS[$COMP_CWORD]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
   if [[ "$last_word_trim" == "uss"* ]]; then
