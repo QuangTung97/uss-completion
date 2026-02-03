@@ -29,6 +29,7 @@ _completion_uss_cd() {
     local IFS=$'\n'
     
     COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
+    return 0
   else
     # call the underlying completion
     $COMPLETION_USS_CD_FUNC
@@ -52,6 +53,7 @@ _completion_uss_cat() {
     local IFS=$'\n'
     compopt -o nospace
     COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
+    return 0
   else
     # call the underlying completion
     $COMPLETION_USS_CAT_FUNC
@@ -75,6 +77,7 @@ _completion_uss_ls() {
     local IFS=$'\n'
     compopt -o nospace
     COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
+    return 0
   else
     # call the underlying completion
     $COMPLETION_USS_LS_FUNC

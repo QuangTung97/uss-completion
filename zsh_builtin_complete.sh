@@ -22,6 +22,7 @@ _completion_uss_cd() {
     local -a results
     results=("${(@f)$(GO_FLAGS_COMPLETE_URI=1 GO_FLAGS_SHELL=zsh uss "$last_word")}")
     _zsh_add_completion_item "${results[@]}"
+    return 0
   else
     # call the underlying completion
     $COMPLETION_USS_CD_FUNC
@@ -45,6 +46,7 @@ _completion_uss_cat() {
     local -a results
     results=("${(@f)$(GO_FLAGS_COMPLETE_URI=1 GO_FLAGS_SHELL=zsh uss "$last_word")}")
     _zsh_add_completion_item "${results[@]}"
+    return 0
   else
     # call the underlying completion
     $COMPLETION_USS_CAT_FUNC
@@ -68,6 +70,7 @@ _completion_uss_ls() {
     local -a results
     results=("${(@f)$(GO_FLAGS_COMPLETE_URI=1 GO_FLAGS_SHELL=zsh uss "$last_word")}")
     _zsh_add_completion_item "${results[@]}"
+    return 0
   else
     # call the underlying completion
     $COMPLETION_USS_LS_FUNC

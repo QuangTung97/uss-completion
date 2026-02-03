@@ -30,6 +30,7 @@ _completion_uss_{{ .Name }}() {
     local IFS=$'\n'
     {{ .SetOption }}
     COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
+    return 0
   else
     # call the underlying completion
     $COMPLETION_USS_{{ .NameUpper }}_FUNC
