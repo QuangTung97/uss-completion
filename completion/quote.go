@@ -1,6 +1,8 @@
 package completion
 
-import "strings"
+import (
+	"strings"
+)
 
 const (
 	ussPrefixConst  = "uss://"
@@ -56,7 +58,10 @@ func (h *QuoteHandler) isPrefixOfUss(match string) bool {
 	if strings.HasPrefix(ussPrefixConst, match) {
 		return true
 	}
-	// TODO
+	if strings.HasPrefix(ussPrefixWithAt, match) {
+		h.prefixWithAt = true
+		return true
+	}
 	return false
 }
 

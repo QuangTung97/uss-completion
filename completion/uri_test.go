@@ -606,6 +606,17 @@ func TestUriAndFile_Complete__With_Zsh(t *testing.T) {
 		)
 	})
 
+	t.Run("with uss prefix and single quote, with @", func(t *testing.T) {
+		v := newTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`@uss://<NS>`,
+			},
+			v.completeUriAndFile(`'@uss`),
+		)
+	})
+
 	t.Run("with get uri path return null dir", func(t *testing.T) {
 		v := newTest(t)
 
