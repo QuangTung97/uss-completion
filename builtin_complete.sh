@@ -25,7 +25,7 @@ _completion_uss_cd() {
   local last_word="${COMP_WORDS[$COMP_CWORD]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
-  if [[ "$last_word_trim" == "uss"* ]]; then
+  if [[ "$last_word_trim" == "uss"* ]] || [[ "$last_word_trim" == "@uss"* ]]; then
     local IFS=$'\n'
     
     COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
@@ -49,7 +49,7 @@ _completion_uss_cat() {
   local last_word="${COMP_WORDS[$COMP_CWORD]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
-  if [[ "$last_word_trim" == "uss"* ]]; then
+  if [[ "$last_word_trim" == "uss"* ]] || [[ "$last_word_trim" == "@uss"* ]]; then
     local IFS=$'\n'
     compopt -o nospace
     COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
@@ -73,7 +73,7 @@ _completion_uss_ls() {
   local last_word="${COMP_WORDS[$COMP_CWORD]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
-  if [[ "$last_word_trim" == "uss"* ]]; then
+  if [[ "$last_word_trim" == "uss"* ]] || [[ "$last_word_trim" == "@uss"* ]]; then
     local IFS=$'\n'
     compopt -o nospace
     COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))

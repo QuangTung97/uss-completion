@@ -18,7 +18,7 @@ _completion_uss_cd() {
   local last_word="${words[$CURRENT]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
-  if [[ "$last_word_trim" == "uss"* ]]; then
+  if [[ "$last_word_trim" == "uss"* ]] || [[ "$last_word_trim" == "@uss"* ]]; then
     local -a results
     results=("${(@f)$(GO_FLAGS_COMPLETE_URI=1 GO_FLAGS_SHELL=zsh uss "$last_word")}")
     _zsh_add_completion_item "${results[@]}"
@@ -42,7 +42,7 @@ _completion_uss_cat() {
   local last_word="${words[$CURRENT]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
-  if [[ "$last_word_trim" == "uss"* ]]; then
+  if [[ "$last_word_trim" == "uss"* ]] || [[ "$last_word_trim" == "@uss"* ]]; then
     local -a results
     results=("${(@f)$(GO_FLAGS_COMPLETE_URI=1 GO_FLAGS_SHELL=zsh uss "$last_word")}")
     _zsh_add_completion_item "${results[@]}"
@@ -66,7 +66,7 @@ _completion_uss_ls() {
   local last_word="${words[$CURRENT]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
-  if [[ "$last_word_trim" == "uss"* ]]; then
+  if [[ "$last_word_trim" == "uss"* ]] || [[ "$last_word_trim" == "@uss"* ]]; then
     local -a results
     results=("${(@f)$(GO_FLAGS_COMPLETE_URI=1 GO_FLAGS_SHELL=zsh uss "$last_word")}")
     _zsh_add_completion_item "${results[@]}"

@@ -26,7 +26,7 @@ _completion_uss_{{ .Name }}() {
   local last_word="${COMP_WORDS[$COMP_CWORD]}"
   local last_word_trim="$(_completion_remove_quote "$last_word")"
 
-  if [[ "$last_word_trim" == "uss"* ]]; then
+  if [[ "$last_word_trim" == "uss"* ]] || [[ "$last_word_trim" == "@uss"* ]]; then
     local IFS=$'\n'
     {{ .SetOption }}
     COMPREPLY=($(GO_FLAGS_COMPLETE_URI=1 uss "$last_word"))
