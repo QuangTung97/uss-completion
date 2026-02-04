@@ -18,6 +18,7 @@ _uss_completion() {
   local -a args=("${words[@]:1:$CURRENT-1}")
   local -a results=("${(@f)$(GO_FLAGS_COMPLETION=1 GO_FLAGS_SHELL=zsh "${words[1]}" "${args[@]}")}")
   _zsh_add_completion_item "${results[@]}"
+  return 0
 }
 
 compdef _uss_completion uss
