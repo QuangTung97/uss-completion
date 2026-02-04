@@ -236,6 +236,8 @@ func searchFilesWithNullDir(searchDir string, remainMatch string) []string {
 	return globalListFilesByPatternFunc(searchDir, remainMatch)
 }
 
+const attrDateKey = "date"
+
 func handleAttrComplete(
 	quote *QuoteHandler, prefix string, datasetName string, attrsStr string,
 ) []flags.Completion {
@@ -262,14 +264,14 @@ func handleAttrComplete(
 	}
 
 	allMatches := map[string][]string{
-		"date": {
+		attrDateKey: {
 			"date=",
 		},
 	}
 
-	keyList := []string{"date"}
+	keyList := []string{attrDateKey}
 	keySet := map[string]struct{}{
-		"date": {},
+		attrDateKey: {},
 	}
 
 	versionList := GetAllVersionsFunc(datasetName)
@@ -288,6 +290,8 @@ func handleAttrComplete(
 		}
 	}
 
+	isLastKey := len(existedKeys) >= len(keyList)-1
+
 	var result []flags.Completion
 	for _, attrKey := range keyList {
 		_, existed := existedKeys[attrKey]
@@ -295,13 +299,15 @@ func handleAttrComplete(
 			continue
 		}
 
+		handleDateAttrComplete(quote, attrKey, lastAttr, isLastKey, prefix, &result)
+
 		for _, kv := range allMatches[attrKey] {
 			if !strings.HasPrefix(kv, lastAttr) {
 				continue
 			}
 
 			matchStr := kv
-			if attrKey != "date" && len(existedKeys) >= len(keyList)-1 {
+			if attrKey != attrDateKey && isLastKey {
 				matchStr += "}" + quote.getQuoteChar()
 			}
 
@@ -311,4 +317,39 @@ func handleAttrComplete(
 		}
 	}
 	return result
+}
+
+func handleDateAttrComplete(
+	quote *QuoteHandler,
+	attrKey string, lastAttr string,
+	isLastKey bool, prefix string,
+	result *[]flags.Completion,
+) {
+	if attrKey != attrDateKey {
+		return
+	}
+
+	if !strings.HasPrefix(lastAttr, attrDateKey) {
+		return
+	}
+
+	equalIndex := strings.Index(lastAttr, "=")
+	if equalIndex <= 0 {
+		return
+	}
+
+	value := strings.TrimSpace(lastAttr[equalIndex+1:])
+	if len(value) < 8 {
+		return
+	}
+
+	if isLastKey {
+		*result = append(*result, flags.Completion{
+			Item: prefix + lastAttr + "}" + quote.getQuoteChar() + NoSpace,
+		})
+	} else {
+		*result = append(*result, flags.Completion{
+			Item: prefix + lastAttr + "," + NoSpace,
+		})
+	}
 }

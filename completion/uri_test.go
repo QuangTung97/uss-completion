@@ -358,6 +358,45 @@ func TestUriAndFile_Complete__With_Files(t *testing.T) {
 		assert.Equal(t, "", v.fileMatchInput)
 		assert.Equal(t, 1, v.fileMatchCalls)
 	})
+
+	t.Run("date full length", func(t *testing.T) {
+		v := newUriValueTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://test01{date=20250809,` + BlackBullet + NoSpace,
+				`"uss://test01{date=20250809,` + WhiteBullet + NoSpace,
+			},
+			v.completeUriAndFile(`"uss://test01{date=20250809`),
+		)
+		assert.Equal(t, 0, v.fileMatchCalls)
+	})
+
+	t.Run("date full length, end of attr list", func(t *testing.T) {
+		v := newUriValueTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://test01{asset_type=equity,date=20250809}"` + BlackBullet + NoSpace,
+				`"uss://test01{asset_type=equity,date=20250809}"` + WhiteBullet + NoSpace,
+			},
+			v.completeUriAndFile(`"uss://test01{asset_type=equity,date=20250809`),
+		)
+		assert.Equal(t, 0, v.fileMatchCalls)
+	})
+
+	t.Run("date without equal", func(t *testing.T) {
+		v := newUriValueTest(t)
+		assert.Equal(
+			t,
+			[]string{
+				`"uss://test01{date=` + BlackBullet + NoSpace,
+				`"uss://test01{date=` + WhiteBullet + NoSpace,
+			},
+			v.completeUriAndFile(`"uss://test01{date`),
+		)
+		assert.Equal(t, 0, v.fileMatchCalls)
+	})
 }
 
 func TestUri_Complete(t *testing.T) {
