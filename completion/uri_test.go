@@ -404,14 +404,15 @@ func TestUri_Complete(t *testing.T) {
 		v := newUriValueTest(t)
 
 		for i := range 20 {
-			v.matchDatasetOutputs = append(v.matchDatasetOutputs, fmt.Sprintf("dataset%02d", i+1))
+			v.matchDatasetOutputs = append(v.matchDatasetOutputs, fmt.Sprintf("Dataset%02d", i+1))
 		}
 
 		var expected []string
 		for i := range 20 {
-			expected = append(expected, fmt.Sprintf(`"uss://dataset%02d{<NS>`, i+1))
+			// with uppercase
+			expected = append(expected, fmt.Sprintf(`"uss://Dataset%02d{<NS>`, i+1))
 		}
-		expected = append(expected, `"uss://<NS>`)
+		expected = append(expected, `"uss://data<NS>`)
 
 		assert.Equal(
 			t,
@@ -420,6 +421,31 @@ func TestUri_Complete(t *testing.T) {
 		)
 
 		assert.Equal(t, []string{"data"}, v.matchDatasetInputs)
+	})
+
+	t.Run("dataset name completion, reach limit 20, name already exist in match input", func(t *testing.T) {
+		v := newUriValueTest(t)
+
+		for i := range 20 {
+			v.matchDatasetOutputs = append(v.matchDatasetOutputs, fmt.Sprintf("Dataset%02d", i+1))
+		}
+		v.matchDatasetOutputs = append(v.matchDatasetOutputs, "dataset")
+
+		var expected []string
+		for i := range 20 {
+			// with uppercase
+			expected = append(expected, fmt.Sprintf(`"uss://Dataset%02d{<NS>`, i+1))
+		}
+		expected = append(expected, `"uss://dataset{<NS>`)
+		expected = append(expected, `"uss://dataset<NS>`)
+
+		assert.Equal(
+			t,
+			expected,
+			v.completeUriAndFile(`"uss://dataset`),
+		)
+
+		assert.Equal(t, []string{"dataset"}, v.matchDatasetInputs)
 	})
 
 	t.Run("prefix is not uss", func(t *testing.T) {

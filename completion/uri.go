@@ -7,6 +7,8 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
+const limitListDataset = 20
+
 func isZshShell() bool {
 	return os.Getenv("GO_FLAGS_SHELL") == "zsh"
 }
@@ -148,16 +150,16 @@ func coreHandleComplete(
 
 		var result []flags.Completion
 		for _, name := range datasetNames {
-			if strings.HasPrefix(name, matchDatasetName) {
+			if hasPrefixCaseInsensitive(name, matchDatasetName) {
 				result = append(result, flags.Completion{
 					Item: prefix + name + "{" + NoSpace,
 				})
 			}
 		}
 
-		if len(datasetNames) >= 20 {
+		if len(datasetNames) >= limitListDataset {
 			result = append(result, flags.Completion{
-				Item: prefix + NoSpace,
+				Item: prefix + matchDatasetName + NoSpace,
 			})
 		}
 
@@ -309,4 +311,10 @@ func handleAttrComplete(
 		}
 	}
 	return result
+}
+
+func hasPrefixCaseInsensitive(s string, prefix string) bool {
+	s = strings.ToLower(s)
+	prefix = strings.ToLower(prefix)
+	return strings.HasPrefix(s, prefix)
 }
