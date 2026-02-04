@@ -150,7 +150,7 @@ func coreHandleComplete(
 
 		var result []flags.Completion
 		for _, name := range datasetNames {
-			if hasPrefixCaseInsensitive(name, matchDatasetName) {
+			if strings.HasPrefix(name, matchDatasetName) {
 				result = append(result, flags.Completion{
 					Item: prefix + name + "{" + NoSpace,
 				})
@@ -311,10 +311,4 @@ func handleAttrComplete(
 		}
 	}
 	return result
-}
-
-func hasPrefixCaseInsensitive(s string, prefix string) bool {
-	s = strings.ToLower(s)
-	prefix = strings.ToLower(prefix)
-	return strings.HasPrefix(s, prefix)
 }

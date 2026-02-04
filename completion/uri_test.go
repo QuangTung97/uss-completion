@@ -404,13 +404,13 @@ func TestUri_Complete(t *testing.T) {
 		v := newUriValueTest(t)
 
 		for i := range 20 {
-			v.matchDatasetOutputs = append(v.matchDatasetOutputs, fmt.Sprintf("Dataset%02d", i+1))
+			v.matchDatasetOutputs = append(v.matchDatasetOutputs, fmt.Sprintf("dataset%02d", i+1))
 		}
 
 		var expected []string
 		for i := range 20 {
 			// with uppercase
-			expected = append(expected, fmt.Sprintf(`"uss://Dataset%02d{<NS>`, i+1))
+			expected = append(expected, fmt.Sprintf(`"uss://dataset%02d{<NS>`, i+1))
 		}
 		expected = append(expected, `"uss://data<NS>`)
 
@@ -427,14 +427,14 @@ func TestUri_Complete(t *testing.T) {
 		v := newUriValueTest(t)
 
 		for i := range 20 {
-			v.matchDatasetOutputs = append(v.matchDatasetOutputs, fmt.Sprintf("Dataset%02d", i+1))
+			v.matchDatasetOutputs = append(v.matchDatasetOutputs, fmt.Sprintf("dataset%02d", i+1))
 		}
 		v.matchDatasetOutputs = append(v.matchDatasetOutputs, "dataset")
 
 		var expected []string
 		for i := range 20 {
 			// with uppercase
-			expected = append(expected, fmt.Sprintf(`"uss://Dataset%02d{<NS>`, i+1))
+			expected = append(expected, fmt.Sprintf(`"uss://dataset%02d{<NS>`, i+1))
 		}
 		expected = append(expected, `"uss://dataset{<NS>`)
 		expected = append(expected, `"uss://dataset<NS>`)
